@@ -5,6 +5,20 @@ Utilities (:mod:`utilities`)
     :no-members:
     :no-inherited-members:
 
+
+Quadrature
+----------
+
+.. automodule:: pypint.utilities.quadrature
+    :no-members:
+    :noindex:
+
+.. toctree::
+    :includehidden:
+
+    quadrature/package
+
+
 .. toctree::
 
     assertions

@@ -1,7 +1,7 @@
 Weight Function Providers (:mod:`weight_function_providers`)
 ============================================================
 
-.. automodule:: pypint.integrators.weight_function_providers
+.. automodule:: pypint.utilities.quadrature.weight_function_providers
 
 .. toctree::
 

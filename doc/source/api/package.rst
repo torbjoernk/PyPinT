@@ -15,19 +15,6 @@ Communicators
     communicators/package
 
 
-Integrators
------------
-
-.. automodule:: pypint.integrators
-    :no-members:
-    :noindex:
-
-.. toctree::
-    :includehidden:
-
-    integrators/package
-
-
 Multi Level Providers
 ---------------------
 

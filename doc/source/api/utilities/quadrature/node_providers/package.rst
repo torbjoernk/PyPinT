@@ -1,7 +1,7 @@
 Node Providers (:mod:`node_providers`)
 ======================================
 
-.. automodule:: pypint.integrators.node_providers
+.. automodule:: pypint.utilities.quadrature.node_providers
 
 .. toctree::
 
