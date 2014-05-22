@@ -3,7 +3,7 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.utilities.integrators.integrator_base import IntegratorBase
+from pypint.utilities.quadrature.quadrature_base import QuadratureBase
 from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
     import ILevelTransitionProvider
 from pypint.utilities import assert_condition, assert_is_instance
@@ -38,7 +38,7 @@ class MultiLevelProvider(object):
 
         Returns
         -------
-        integrator : :py:class:`.IntegratorBase`
+        integrator : :py:class:`.QuadratureBase`
             Stored integrator for given level.
         """
         return self._level_integrators[level]
@@ -102,7 +102,7 @@ class MultiLevelProvider(object):
 
         Parameters
         ----------
-        integrator : :py:class:`.IntegratorBase`
+        integrator : :py:class:`.QuadratureBase`
             Integrator for the new level.
 
         top_level : :py:class:`int`
@@ -112,9 +112,9 @@ class MultiLevelProvider(object):
         Raises
         ------
         ValueError
-            If ``integrator`` is not an :py:class:`.IntegratorBase`.
+            If ``integrator`` is not an :py:class:`.QuadratureBase`.
         """
-        assert_is_instance(integrator, IntegratorBase, descriptor="Integrator", checking_obj=self)
+        assert_is_instance(integrator, QuadratureBase, descriptor="Integrator", checking_obj=self)
         self._num_levels += 1
         self._level_integrators.insert(top_level, integrator)
 

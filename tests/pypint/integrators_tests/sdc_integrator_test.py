@@ -3,13 +3,13 @@ import unittest
 
 import numpy
 
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from tests.__init__ import NumpyAwareTestCase
 
 
 class SdcIntegratorTest(NumpyAwareTestCase):
     def setUp(self):
-        self._test_obj = SdcIntegrator()
+        self._test_obj = SdcQuadrature()
 
     def test_s_and_q_matrix_computation_default_interval(self):
         self._test_obj.init(num_nodes=3)

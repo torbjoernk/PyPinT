@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.solvers.cores.semi_implicit_sdc_core import SemiImplicitSdcCore
 from pypint.utilities.threshold_check import ThresholdCheck
@@ -47,7 +47,7 @@ def run_problem(real, imag, max_iter, num_steps, num_nodes, criteria, task, num_
     comm.link_solvers(previous=comm, next=comm)
     comm.write_buffer(value=problem.initial_value, time_point=problem.time_start)
 
-    solver.init(integrator=SdcIntegrator, problem=problem, threshold=check, num_time_steps=num_steps, num_nodes=num_nodes)
+    solver.init(integrator=SdcQuadrature, problem=problem, threshold=check, num_time_steps=num_steps, num_nodes=num_nodes)
     try:
         solution = solver.run(SemiImplicitSdcCore, dt=(problem.time_end - problem.time_start))
         return int(solution[-1].used_iterations)

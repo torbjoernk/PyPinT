@@ -4,12 +4,12 @@
 """
 import numpy as np
 
-from pypint.utilities.integrators.node_providers.i_nodes import INodes
-from pypint.utilities.integrators.weight_function_providers.i_weight_function import IWeightFunction
+from pypint.utilities.quadrature.node_providers.i_nodes import INodes
+from pypint.utilities.quadrature.weight_function_providers.i_weight_function import IWeightFunction
 from pypint.utilities import assert_is_instance, assert_condition, class_name
 
 
-class IntegratorBase(object):
+class QuadratureBase(object):
     """Basic and generic integrator for variable nodes and weights.
     """
     def __init__(self):
@@ -48,10 +48,10 @@ class IntegratorBase(object):
 
         Examples
         --------
-        >>> from pypint.utilities.integrators import INTEGRATOR_PRESETS
-        >>> integrator = IntegratorBase()
+        >>> from pypint.utilities.quadrature import QUADRATURE_PRESETS
+        >>> integrator = QuadratureBase()
         >>> # create classic Gauss-Lobatto integrator with 4 integration nodes
-        >>> options = INTEGRATOR_PRESETS['Gauss-Lobatto']
+        >>> options = QUADRATURE_PRESETS['Gauss-Lobatto']
         >>> options['num_nodes'] = 4
         >>> integrator.init(**options)
         """
@@ -186,4 +186,4 @@ class IntegratorBase(object):
         return _lines
 
     def __str__(self):
-        return "IntegratorBase<0x%x>(nodes=%s, weights=%s)" % (id(self), self.nodes_type, self.weights_function)
+        return "QuadratureBase<0x%x>(nodes=%s, weights=%s)" % (id(self), self.nodes_type, self.weights_function)

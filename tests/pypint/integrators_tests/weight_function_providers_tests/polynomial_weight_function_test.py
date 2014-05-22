@@ -1,9 +1,9 @@
 # coding=utf-8
-
+import unittest
 from nose.tools import *
 import numpy as np
 
-from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 
 
 test_coefficients = [
@@ -84,3 +84,7 @@ class PolynomialWeightFunctionTest(unittest.TestCase):
                           "Weights should be initialized as 'None'")
         self.assertEqual(self._test_obj.coefficients.size, 0,
                          "List of coefficients should be empty")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -6,7 +6,7 @@
 import numpy as np
 import numpy.polynomial.polynomial as pol
 
-from pypint.utilities.integrators.weight_function_providers.i_weight_function import IWeightFunction
+from pypint.utilities.quadrature.weight_function_providers.i_weight_function import IWeightFunction
 from pypint.utilities import func_name, assert_is_instance, assert_condition
 
 

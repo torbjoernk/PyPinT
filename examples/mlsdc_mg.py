@@ -170,12 +170,12 @@ LOG.info(SEPARATOR_LVL2)
 LOG.info("%sSetting Up MLSDC Solver" % VERBOSITY_LVL1)
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 
-base_mlsdc_level = SdcIntegrator()
+base_mlsdc_level = SdcQuadrature()
 base_mlsdc_level.init(num_nodes=5)
 
-fine_mlsdc_level = SdcIntegrator()
+fine_mlsdc_level = SdcQuadrature()
 fine_mlsdc_level.init(num_nodes=7)
 
 transitioner = TimeTransitionProvider(fine_nodes=fine_mlsdc_level.nodes, coarse_nodes=base_mlsdc_level.nodes)

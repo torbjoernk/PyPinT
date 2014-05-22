@@ -29,7 +29,7 @@ class IIterativeTimeSolver(object):
         problem : :py:class:`.IProblem`
             The problem this solver should solve.
 
-        integrator : :py:class:`.IntegratorBase`
+        integrator : :py:class:`.QuadratureBase`
             Integrator to be used by this solver.
 
         threshold : :py:class:`.ThresholdCheck`
@@ -131,7 +131,7 @@ class IIterativeTimeSolver(object):
 
         Returns
         -------
-        integrator : :py:class:`.IntegratorBase`
+        integrator : :py:class:`.QuadratureBase`
         """
         return self._integrator
 

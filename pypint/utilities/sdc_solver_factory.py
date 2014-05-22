@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.problems.i_initial_value_problem import IInitialValueProblem
 from pypint.utilities import assert_is_instance, assert_condition
 from pypint.utilities.logging import *
@@ -115,7 +115,7 @@ def sdc_solver_factory(problem, num_solvers, num_total_time_steps, solver_core, 
 
     # initialize solvers
     for _s in _solvers:
-        _s.init(problem=problem, integrator=SdcIntegrator, **solver_options)
+        _s.init(problem=problem, integrator=SdcQuadrature, **solver_options)
 
     _log_messages['']['Individual Solver'] = _solvers[0].print_lines_for_log()
 

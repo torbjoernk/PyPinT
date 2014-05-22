@@ -1,9 +1,9 @@
 # coding=utf-8
-
+import unittest
 from nose.tools import *
 import numpy as np
 
-from pypint.utilities.integrators.node_providers.gauss_legendre_nodes import GaussLegendreNodes
+from pypint.utilities.quadrature.node_providers.gauss_legendre_nodes import GaussLegendreNodes
 
 
 test_num_nodes = range(2, 7)
@@ -50,3 +50,7 @@ class GaussLegendreNodesTest(unittest.TestCase):
         self.assertAlmostEqual(self._test_obj.nodes[2], 0.0)
         self.assertAlmostEqual(self._test_obj.nodes[3], 1.0 / 3.0 * np.sqrt(5.0 - 2.0 * np.sqrt(10.0 / 7.0)))
         self.assertAlmostEqual(self._test_obj.nodes[4], 1.0 / 3.0 * np.sqrt(5 + 2 * np.sqrt(10.0 / 7.0)))
+
+
+if __name__ == "__main__":
+    unittest.main()

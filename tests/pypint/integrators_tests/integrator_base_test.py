@@ -2,16 +2,16 @@
 """
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-
+import unittest
 import numpy
 from nose.tools import *
 
-from pypint.utilities.integrators.integrator_base import IntegratorBase
-from pypint.utilities.integrators import INTEGRATOR_PRESETS
+from pypint.utilities.quadrature.quadrature_base import QuadratureBase
+from pypint.utilities.quadrature import QUADRATURE_PRESETS
 
 
 def init_with_presets(preset):
-    integrator = IntegratorBase()
+    integrator = QuadratureBase()
     integrator.init(**preset)
     assert_is_instance(integrator.nodes, numpy.ndarray)
     assert_equal(integrator.nodes.size, preset["num_nodes"])
@@ -20,13 +20,13 @@ def init_with_presets(preset):
 
 
 def test_init_with_presets():
-    for preset in INTEGRATOR_PRESETS:
-        yield init_with_presets, INTEGRATOR_PRESETS[preset]
+    for preset in QUADRATURE_PRESETS:
+        yield init_with_presets, QUADRATURE_PRESETS[preset]
 
 
 class IntegratorBaseTest(unittest.TestCase):
     def test_initialization(self):
-        integrator = IntegratorBase()
+        integrator = QuadratureBase()
 
 
 if __name__ == "__main__":

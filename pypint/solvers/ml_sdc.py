@@ -13,8 +13,8 @@ from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
 from pypint.solvers.i_parallel_solver import IParallelSolver
 from pypint.communicators.message import Message
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
 from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
@@ -382,7 +382,7 @@ class MlSdc(IIterativeTimeSolver, IParallelSolver):
         self.__time_points = np.zeros(self.ml_provider.num_levels, dtype=np.object)
         self.__deltas = np.zeros(self.ml_provider.num_levels, dtype=np.object)
 
-        # make sure the integrators are all set up correctly for the different levels
+        # make sure the quadrature are all set up correctly for the different levels
         for _level in range(0, self.ml_provider.num_levels):
             _integrator = self.ml_provider.integrator(_level)
 

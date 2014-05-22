@@ -17,7 +17,7 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
 from pypint.communicators import ForwardSendingMessaging
@@ -40,13 +40,13 @@ def run_problem(real, imag, max_iter, num_steps, num_nodes, criteria, task, num_
         print("[ {:6.2f}%] Starting task {:{width}d} of {:{width}d}: \\lambda = {: .3f}{:+.3f}i"
               .format(_percent, task, num_tasks, real, imag, width=_width))
 
-    base_integrator = SdcIntegrator()
+    base_integrator = SdcQuadrature()
     base_integrator.init(num_nodes=num_nodes)
 
-    intermediate_integrator = SdcIntegrator()
+    intermediate_integrator = SdcQuadrature()
     intermediate_integrator.init(num_nodes=(2 * num_nodes - 1))
 
-    # fine_integrator = SdcIntegrator()
+    # fine_integrator = SdcQuadrature()
     # fine_integrator.init(num_nodes=(num_nodes + 4))
 
     transitioner1 = TimeTransitionProvider(fine_nodes=intermediate_integrator.nodes, coarse_nodes=base_integrator.nodes)

@@ -1,9 +1,10 @@
 # coding=utf-8
 
+import unittest
 from nose.tools import *
 import numpy as np
 
-from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
 
 
 test_num_nodes = range(3, 7)
@@ -55,3 +56,7 @@ class GaussLobattoNodesTest(unittest.TestCase):
         self.assertAlmostEqual(self._test_obj.nodes[2], 0.0)
         self.assertAlmostEqual(self._test_obj.nodes[3], np.sqrt(3.0 / 7.0))
         self.assertAlmostEqual(self._test_obj.nodes[4], 1.0)
+
+
+if __name__ == "__main__":
+    unittest.main()

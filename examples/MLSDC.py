@@ -4,17 +4,17 @@ simplefilter('always')
 
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 
-base_integrator = SdcIntegrator()
+base_integrator = SdcQuadrature()
 base_integrator.init(num_nodes=3)
 # print(base_integrator)
 
-intermediate_integrator = SdcIntegrator()
+intermediate_integrator = SdcQuadrature()
 intermediate_integrator.init(num_nodes=5)
 # print(intermediate_integrator)
 
-# fine_integrator = SdcIntegrator()
+# fine_integrator = SdcQuadrature()
 # fine_integrator.init(num_nodes=7)
 # print(fine_integrator)
 

@@ -12,9 +12,9 @@ import numpy as np
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
 from pypint.solvers.i_parallel_solver import IParallelSolver
 from pypint.communicators.message import Message
-from pypint.utilities.integrators.integrator_base import IntegratorBase
-from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.quadrature_base import QuadratureBase
+from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
@@ -145,8 +145,8 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
             mixed in overridden method (with further parameters)
         """
         assert_is_instance(problem, IInitialValueProblem, descriptor="Initial Value Problem", checking_obj=self)
-        assert_condition(issubclass(integrator, IntegratorBase),
-                         ValueError, message="Integrator must be an IntegratorBase: NOT %s"
+        assert_condition(issubclass(integrator, QuadratureBase),
+                         ValueError, message="Integrator must be an QuadratureBase: NOT %s"
                                              % integrator.__mro__[-2].__name__,
                          checking_obj=self)
 

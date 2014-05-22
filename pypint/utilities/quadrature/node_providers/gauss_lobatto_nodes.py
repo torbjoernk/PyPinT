@@ -6,7 +6,7 @@
 import numpy as np
 import numpy.polynomial.legendre as leg
 
-from pypint.utilities.integrators.node_providers.i_nodes import INodes
+from pypint.utilities.quadrature.node_providers.i_nodes import INodes
 from pypint.utilities import assert_condition
 
 

@@ -7,18 +7,18 @@ from copy import deepcopy
 
 import numpy as np
 
-from pypint.utilities.integrators.integrator_base import IntegratorBase
-from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.quadrature_base import QuadratureBase
+from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 from pypint.utilities import assert_is_instance, assert_condition
 from pypint.utilities.logging import LOG
 
 
-class SdcIntegrator(IntegratorBase):
+class SdcQuadrature(QuadratureBase):
     """Integral part of the SDC algorithm.
     """
     def __init__(self):
-        super(SdcIntegrator, self).__init__()
+        super(SdcQuadrature, self).__init__()
         self._smat = np.zeros(0)
         self._qmat = np.zeros(0)
 
@@ -43,7 +43,7 @@ class SdcIntegrator(IntegratorBase):
             interval for the nodes
             (see :py:meth:`.INodes.transform` for possible values)
         """
-        super(SdcIntegrator, self).init(nodes_type, num_nodes, weights_function, interval)
+        super(SdcQuadrature, self).init(nodes_type, num_nodes, weights_function, interval)
         self._construct_s_matrix()
 
     def evaluate(self, data, **kwargs):
@@ -84,7 +84,7 @@ class SdcIntegrator(IntegratorBase):
 
         See Also
         --------
-        :py:meth:`.IntegratorBase.evaluate` : overridden method
+        :py:meth:`.QuadratureBase.evaluate` : overridden method
         """
         _target_index = self._qmat.shape[0] - 1
         if 'target_node' in kwargs:
@@ -101,7 +101,7 @@ class SdcIntegrator(IntegratorBase):
                          message="Integration must cover at least two nodes: %d !< %d" % (_from_index, _target_index),
                          checking_obj=self)
 
-        super(SdcIntegrator, self).evaluate(data,
+        super(SdcQuadrature, self).evaluate(data,
                                             time_start=self.nodes[_from_index],
                                             time_end=self.nodes[_target_index])
         if _from_index != 0:
@@ -130,15 +130,15 @@ class SdcIntegrator(IntegratorBase):
 
         See Also
         --------
-        :py:meth:`.IntegratorBase.transform_interval` : overridden method
+        :py:meth:`.QuadratureBase.transform_interval` : overridden method
         """
         if interval is not None:
             if interval[1] - interval[0] != self.nodes[-1] - self.nodes[0]:
                 LOG.debug("Size of interval changed. Recalculating weights.")
-                super(SdcIntegrator, self).transform_interval(interval)
+                super(SdcQuadrature, self).transform_interval(interval)
                 self._construct_s_matrix()
             else:
-                super(SdcIntegrator, self).transform_interval(interval)
+                super(SdcQuadrature, self).transform_interval(interval)
                 LOG.debug("Size of interval did not change. Don't need to recompute S and Q matrices")
         else:
             LOG.debug("Cannot transform interval to None. Skipping.")
@@ -175,7 +175,7 @@ class SdcIntegrator(IntegratorBase):
             self._qmat[i + 1] = self._qmat[i] + self._smat[i]
 
     def __str__(self):
-        return "SdcIntegrator<0x%x>(nodes=%s, weights=%s)" % (id(self), self.nodes_type, self.weights_function)
+        return "SdcQuadrature<0x%x>(nodes=%s, weights=%s)" % (id(self), self.nodes_type, self.weights_function)
 
     def __copy__(self):
         copy = self.__class__.__new__(self.__class__)

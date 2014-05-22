@@ -2,7 +2,7 @@
 from nose.tools import *
 
 from tests import NumpyAwareTestCase
-from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.utilities.threshold_check import ThresholdCheck
@@ -22,7 +22,7 @@ def _run_sdc_with_problem(problem, core, num_time_steps, dt, num_nodes, max_iter
     _sdc = ParallelSdc(communicator=_comm)
     _comm.link_solvers(previous=_comm, next=_comm)
     _comm.write_buffer(value=problem.initial_value, time_point=problem.time_start)
-    _sdc.init(integrator=SdcIntegrator, threshold=thresh, problem=problem, num_time_steps=num_time_steps, num_nodes=num_nodes)
+    _sdc.init(integrator=SdcQuadrature, threshold=thresh, problem=problem, num_time_steps=num_time_steps, num_nodes=num_nodes)
     _solution = _sdc.run(core, dt=dt)
     # for _node_index in range(0, len(_solution.solution(-1))):
     #     print("Node {}: {} <-> {}".format(_node_index, _solution.solution(-1)[_node_index].value, problem.exact(_solution.solution(-1)[_node_index].time_point)))

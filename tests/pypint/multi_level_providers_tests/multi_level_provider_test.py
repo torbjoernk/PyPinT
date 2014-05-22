@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 import numpy
 
 from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
-from pypint.utilities.integrators.integrator_base import IntegratorBase
+from pypint.utilities.quadrature.quadrature_base import QuadratureBase
 from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
     import ILevelTransitionProvider
 
@@ -19,7 +19,7 @@ class MultiLevelProviderTest(unittest.TestCase):
     def setUp(self):
         # mocks
         self._integrator = MagicMock(name="IntegratorBaseMock")
-        self._integrator.__class__ = IntegratorBase
+        self._integrator.__class__ = QuadratureBase
         self._level_transitioner = MagicMock(name="ILevelTransitionProviderMock")
         self._level_transitioner.__class__ = ILevelTransitionProvider
 
@@ -40,9 +40,9 @@ class MultiLevelProviderTest(unittest.TestCase):
         # add at least one level
         self._test_obj.add_coarse_level(self._integrator)
         self.assertEqual(self._test_obj.num_levels, 1)
-        self.assertIsInstance(self._test_obj.integrator(0), IntegratorBase)
+        self.assertIsInstance(self._test_obj.integrator(0), QuadratureBase)
 
-        # try adding a non-IntegratorBase
+        # try adding a non-QuadratureBase
         with self.assertRaises(ValueError):
             self._test_obj.add_coarse_level(MagicMock(name="NotAnIntegrator"))
 
