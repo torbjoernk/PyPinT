@@ -4,8 +4,8 @@
 """
 import numpy as np
 
-from pypint.integrators.node_providers.i_nodes import INodes
-from pypint.integrators.weight_function_providers.i_weight_function import IWeightFunction
+from pypint.utilities.integrators.node_providers.i_nodes import INodes
+from pypint.utilities.integrators.weight_function_providers.i_weight_function import IWeightFunction
 from pypint.utilities import assert_is_instance, assert_condition, class_name
 
 
@@ -48,7 +48,7 @@ class IntegratorBase(object):
 
         Examples
         --------
-        >>> from pypint.integrators import INTEGRATOR_PRESETS
+        >>> from pypint.utilities.integrators import INTEGRATOR_PRESETS
         >>> integrator = IntegratorBase()
         >>> # create classic Gauss-Lobatto integrator with 4 integration nodes
         >>> options = INTEGRATOR_PRESETS['Gauss-Lobatto']

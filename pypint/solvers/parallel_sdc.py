@@ -12,9 +12,9 @@ import numpy as np
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
 from pypint.solvers.i_parallel_solver import IParallelSolver
 from pypint.communicators.message import Message
-from pypint.integrators.integrator_base import IntegratorBase
-from pypint.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.integrators.integrator_base import IntegratorBase
+from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
@@ -23,6 +23,7 @@ from pypint.plugins.timers.timer_base import TimerBase
 from pypint.utilities.threshold_check import ThresholdCheck
 from pypint.utilities import assert_is_instance, assert_condition, func_name, assert_named_argument
 from pypint.utilities.logging import *
+
 
 
 # General Notes on Implementation

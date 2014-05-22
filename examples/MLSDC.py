@@ -4,7 +4,7 @@ simplefilter('always')
 
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
-from pypint.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
 
 base_integrator = SdcIntegrator()
 base_integrator.init(num_nodes=3)
@@ -31,8 +31,6 @@ ml_provider.add_level_transition(transitioner1, 0, 1)
 # ml_provider.add_level_transition(transitioner2, 1, 2)
 print(ml_provider)
 
-
-from examples.problems.constant import Constant
 from examples.problems.lambda_u import LambdaU
 # problem = Constant()
 problem = LambdaU(lmbda=complex(-1.0, -1.0))
@@ -51,7 +49,7 @@ comm.write_buffer(tag=(ml_provider.num_levels - 1), value=problem.initial_value,
 
 mlsdc.init(problem=problem, ml_provider=ml_provider)
 
-from pypint.solvers.cores import ExplicitMlSdcCore, ImplicitMlSdcCore, SemiImplicitMlSdcCore
+from pypint.solvers.cores import SemiImplicitMlSdcCore
 mlsdc.run(SemiImplicitMlSdcCore, dt=1.0)
 
 print("RHS Evaluations: %d" % problem.rhs_evaluations)

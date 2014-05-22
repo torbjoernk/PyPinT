@@ -17,14 +17,13 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-from pypint.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
 from pypint.communicators import ForwardSendingMessaging
 from pypint.solvers.ml_sdc import MlSdc
 from pypint.solvers.cores.semi_implicit_mlsdc_core import SemiImplicitMlSdcCore
 from pypint.utilities.threshold_check import ThresholdCheck
-from pypint.solvers.diagnosis.norms import two_norm
 from examples.problems.lambda_u import LambdaU
 
 

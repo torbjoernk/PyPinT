@@ -3,7 +3,7 @@ from nose.tools import *
 import numpy
 
 from tests import NumpyAwareTestCase, assert_numpy_array_equal
-from pypint.integrators.node_providers.i_nodes import INodes
+from pypint.utilities.integrators.node_providers.i_nodes import INodes
 
 
 test_data = [

@@ -7,10 +7,10 @@ from copy import deepcopy
 
 import numpy as np
 
-from pypint.integrators.integrator_base import IntegratorBase
-from pypint.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
-from pypint.utilities import assert_is_instance, assert_condition, assert_named_argument
+from pypint.utilities.integrators.integrator_base import IntegratorBase
+from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities import assert_is_instance, assert_condition
 from pypint.utilities.logging import LOG
 
 

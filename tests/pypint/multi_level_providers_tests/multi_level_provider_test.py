@@ -4,13 +4,15 @@
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 
-from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
 import unittest
 from unittest.mock import MagicMock
-from pypint.integrators.integrator_base import IntegratorBase
+
+import numpy
+
+from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
+from pypint.utilities.integrators.integrator_base import IntegratorBase
 from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
     import ILevelTransitionProvider
-import numpy
 
 
 class MultiLevelProviderTest(unittest.TestCase):

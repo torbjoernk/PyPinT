@@ -1,9 +1,10 @@
 # coding=utf-8
 
-from pypint.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
-import unittest
 from nose.tools import *
 import numpy as np
+
+from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+
 
 test_coefficients = [
     np.asarray([42, 0.0, 3.14])

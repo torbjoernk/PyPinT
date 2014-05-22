@@ -2,7 +2,7 @@
 from nose.tools import *
 
 from tests import NumpyAwareTestCase
-from pypint.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.utilities.threshold_check import ThresholdCheck

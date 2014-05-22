@@ -1,9 +1,9 @@
 # coding=utf-8
 
-from pypint.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-import unittest
 from nose.tools import *
 import numpy as np
+
+from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
 
 
 test_num_nodes = range(3, 7)

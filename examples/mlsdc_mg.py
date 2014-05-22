@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import numpy as np
 
+
 dt = 0.001
 
 from pypint.utilities.logging import LOG, print_logging_message_tree, VERBOSITY_LVL1, SEPARATOR_LVL1, SEPARATOR_LVL2
@@ -169,7 +170,7 @@ LOG.info(SEPARATOR_LVL2)
 LOG.info("%sSetting Up MLSDC Solver" % VERBOSITY_LVL1)
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
-from pypint.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
 
 base_mlsdc_level = SdcIntegrator()
 base_mlsdc_level.init(num_nodes=5)
@@ -208,7 +209,8 @@ mlsdc.init(problem=problem, threshold=thresh, ml_provider=ml_provider)
 
 LOG.info(SEPARATOR_LVL1)
 LOG.info("%sLaunching MLSDC with MG" % VERBOSITY_LVL1)
-from pypint.solvers.cores import SemiImplicitMlSdcCore, ExplicitMlSdcCore
+from pypint.solvers.cores import SemiImplicitMlSdcCore
+
 mlsdc.run(SemiImplicitMlSdcCore, dt=dt)
 
 print("RHS Evaluations: %d" % problem.rhs_evaluations)

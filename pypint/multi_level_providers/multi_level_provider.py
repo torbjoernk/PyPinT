@@ -3,7 +3,7 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.integrators.integrator_base import IntegratorBase
+from pypint.utilities.integrators.integrator_base import IntegratorBase
 from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
     import ILevelTransitionProvider
 from pypint.utilities import assert_condition, assert_is_instance

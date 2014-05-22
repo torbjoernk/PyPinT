@@ -4,9 +4,9 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 .. moduleauthor:: Dieter Moser <d.moser@fz-juelich.de>
 """
-from pypint.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.integrators.node_providers.gauss_legendre_nodes import GaussLegendreNodes
-from pypint.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.integrators.node_providers.gauss_legendre_nodes import GaussLegendreNodes
+from pypint.utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 
 
 INTEGRATOR_PRESETS = {}

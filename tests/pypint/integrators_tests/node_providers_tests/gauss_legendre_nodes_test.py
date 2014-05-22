@@ -1,9 +1,9 @@
 # coding=utf-8
 
-from pypint.integrators.node_providers.gauss_legendre_nodes import GaussLegendreNodes
-import unittest
 from nose.tools import *
 import numpy as np
+
+from pypint.utilities.integrators.node_providers.gauss_legendre_nodes import GaussLegendreNodes
 
 
 test_num_nodes = range(2, 7)

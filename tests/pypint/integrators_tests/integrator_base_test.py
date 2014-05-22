@@ -2,13 +2,12 @@
 """
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-import unittest
 
 import numpy
 from nose.tools import *
 
-from pypint.integrators.integrator_base import IntegratorBase
-from pypint.integrators import INTEGRATOR_PRESETS
+from pypint.utilities.integrators.integrator_base import IntegratorBase
+from pypint.utilities.integrators import INTEGRATOR_PRESETS
 
 
 def init_with_presets(preset):

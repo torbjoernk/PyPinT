@@ -13,16 +13,15 @@ from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
 from pypint.solvers.i_parallel_solver import IParallelSolver
 from pypint.communicators.message import Message
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.integrators.integrator_base import IntegratorBase
-from pypint.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.integrators.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from utilities.integrators.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
 from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
 from pypint.solvers.diagnosis.norms import supremum_norm
 from pypint.plugins.timers.timer_base import TimerBase
 from pypint.utilities.threshold_check import ThresholdCheck
-from pypint.utilities import assert_is_instance, assert_condition, func_name, assert_named_argument
+from pypint.utilities import assert_is_instance, assert_condition, assert_named_argument
 from pypint.utilities.logging import *
 
 

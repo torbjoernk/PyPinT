@@ -10,13 +10,11 @@ Run this script from your terminal with::
 
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-import numpy as np
-from examples.problems.constant import Constant
 from examples.problems.lambda_u import LambdaU
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.solvers.parallel_sdc import ParallelSdc
-from pypint.integrators.sdc_integrator import SdcIntegrator
-from pypint.solvers.cores import ExplicitSdcCore, ImplicitSdcCore, SemiImplicitSdcCore
+from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
+from pypint.solvers.cores import SemiImplicitSdcCore
 from pypint.utilities.sdc_solver_factory import sdc_solver_factory
 from pypint.utilities.threshold_check import ThresholdCheck
 

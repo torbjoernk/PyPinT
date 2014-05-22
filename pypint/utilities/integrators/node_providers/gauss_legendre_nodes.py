@@ -6,7 +6,7 @@
 import numpy as np
 from scipy import linalg
 
-from pypint.integrators.node_providers.i_nodes import INodes
+from pypint.utilities.integrators.node_providers.i_nodes import INodes
 from pypint.utilities import assert_condition
 
 

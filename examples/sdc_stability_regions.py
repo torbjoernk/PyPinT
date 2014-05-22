@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
-from pypint.integrators.sdc_integrator import SdcIntegrator
+from pypint.utilities.integrators.sdc_integrator import SdcIntegrator
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.solvers.cores.semi_implicit_sdc_core import SemiImplicitSdcCore
 from pypint.utilities.threshold_check import ThresholdCheck
