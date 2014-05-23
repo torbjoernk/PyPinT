@@ -49,7 +49,7 @@ comm.write_buffer(tag=(ml_provider.num_levels - 1), value=problem.initial_value,
 
 mlsdc.init(problem=problem, ml_provider=ml_provider)
 
-from pypint.integrators import SemiImplicitMlSdcCore
+from pypint.integrators.sdc import SemiImplicitMlSdcCore
 mlsdc.run(SemiImplicitMlSdcCore, dt=1.0)
 
 print("RHS Evaluations: %d" % problem.rhs_evaluations)

@@ -14,7 +14,7 @@ from examples.problems.lambda_u import LambdaU
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
-from pypint.integrators import SemiImplicitSdcCore
+from pypint.integrators.sdc import SemiImplicitSdcCore
 from pypint.utilities.sdc_solver_factory import sdc_solver_factory
 from pypint.utilities.threshold_check import ThresholdCheck
 

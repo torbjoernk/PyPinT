@@ -6,9 +6,7 @@ import numpy as np
 
 from pypint.problems import IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin
 from pypint.utilities import assert_condition, assert_is_instance, assert_named_argument
-from pypint.integrators.sdc.implicit_sdc_core import ImplicitSdcCore
-from pypint.integrators.sdc.implicit_mlsdc_core import ImplicitMlSdcCore
-from pypint.integrators.sdc.semi_implicit_mlsdc_core import SemiImplicitMlSdcCore
+from pypint.integrators.sdc import ImplicitSdcCore, ImplicitMlSdcCore, SemiImplicitMlSdcCore
 
 
 class LambdaU(IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin):
