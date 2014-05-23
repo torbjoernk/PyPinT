@@ -3,30 +3,35 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.utilities.quadrature.quadrature_base import QuadratureBase
+from collections.abc import Container
+from collections.abc import Sized
+from weakref import ref
+
+from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
 from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
     import ILevelTransitionProvider
 from pypint.utilities import assert_condition, assert_is_instance
 
 
-class MultiLevelProvider(object):
-    def __init__(self, num_levels=0, default_integrator=None, default_transitioner=None):
+class MultiLevelProvider(object, Container, Sized):
+    """Container and Provider of Levels and Transitions between them
+
+    As it is a container (cf. :py:class:`collections.abc.Container`) a given :py:class:`.AbstractLevel` can be tested
+    on membership.
+
+    As it is sized (cf. :py:class:`collections.abc.Sized`) the length of it is defined by the number of contained
+    levels.
+    """
+
+    def __init__(self):
         """
         Parameters
         ----------
         num_levels : :py:class:`int`
             Number of initial levels.
-
-        default_transitioner : :py:class:`.ILevelTransitionProvider`
-            Default level transitioner to be used for all level transitions unless a specific one is specified.
         """
+        self._levels = []
         self._level_transitioners = {}
-        self._default_transitioner = default_transitioner
-        self._level_integrators = []
-        self._num_levels = num_levels
-        if num_levels is not None and default_integrator is not None:
-            for level in range(0, num_levels):
-                self.add_coarse_level(default_integrator)
 
     def integrator(self, level):
         """Accessor for the integrator for the specified level.
@@ -41,7 +46,7 @@ class MultiLevelProvider(object):
         integrator : :py:class:`.QuadratureBase`
             Stored integrator for given level.
         """
-        return self._level_integrators[level]
+        return self._levels[level]
 
     def prolongate(self, coarse_data, coarse_level, fine_level=None):
         """Prolongates given data from coarser to finer level.
@@ -97,26 +102,43 @@ class MultiLevelProvider(object):
         """
         return self._level_transition(coarse_level=coarse_level, fine_level=fine_level).restringate(fine_data)
 
-    def add_coarse_level(self, integrator, top_level=0):
-        """Adds a coarser level including an integrator and transitioner.
+    def add_coarser_level(self, level):
+        """Adds a new coarsest level.
+
+        This :py:class:`.MultiLevelProvider` gets cross-referenced to the given level via
+        :py:attr:`.AbstractLevel.ml_provider` as a :py:class:`weakref`.
 
         Parameters
         ----------
-        integrator : :py:class:`.QuadratureBase`
-            Integrator for the new level.
-
-        top_level : :py:class:`int`
-            Next finer level of the new level.
-            ``-1`` is the finest level, ``0`` the currently coarsest.
+        level : :py:class:`.AbstractLevel`
 
         Raises
         ------
         ValueError
-            If ``integrator`` is not an :py:class:`.QuadratureBase`.
+            If ``level`` is not an :py:class:`.AbstractLevel`.
         """
-        assert_is_instance(integrator, QuadratureBase, descriptor="Integrator", checking_obj=self)
-        self._num_levels += 1
-        self._level_integrators.insert(top_level, integrator)
+        assert_is_instance(level, AbstractLevel, descriptor="Level", checking_obj=self)
+        self._levels.insert(0, level)
+        level.ml_provider = ref(self)
+
+    def add_finer_level(self, level):
+        """Adds a new finest level.
+
+        This :py:class:`.MultiLevelProvider` gets cross-referenced to the given level via
+        :py:attr:`.AbstractLevel.ml_provider` as a :py:class:`weakref`.
+
+        Parameters
+        ----------
+        level : :py:class:`.AbstractLevel`
+
+        Raises
+        ------
+        ValueError
+            If ``level`` is not an :py:class:`.AbstractLevel`.
+        """
+        assert_is_instance(level, AbstractLevel, descriptor="Integrator", checking_obj=self)
+        self._levels.append(level)
+        level.ml_provider = ref(self)
 
     def add_level_transition(self, transitioner, coarse_level, fine_level):
         """Adds specialized level transitioner for specified levels.
@@ -145,6 +167,26 @@ class MultiLevelProvider(object):
 
         self._level_transitioners[coarse_level][fine_level] = transitioner
 
+    def get_coarser_level(self, level):
+        assert_is_instance(level, AbstractLevel, descriptor="Level", checking_obj=self)
+        assert_condition(level in self,
+                         ValueError, message="Given Level is not provided by this MultiLevelProvider",
+                         checking_obj=self)
+        if level is self.coarsest_level:
+            return None
+        else:
+            return self._levels[self._levels.index(level) - 1]
+
+    def get_finer_level(self, level):
+        assert_is_instance(level, AbstractLevel, descriptor="Level", checking_obj=self)
+        assert_condition(level in self,
+                         ValueError, message="Given Level is not provided by this MultiLevelProvider",
+                         checking_obj=self)
+        if level is self.finest_level:
+            return None
+        else:
+            return self._levels[self._levels.index(level) + 1]
+
     @property
     def num_levels(self):
         """Accessor for the number of levels.
@@ -154,7 +196,19 @@ class MultiLevelProvider(object):
         num_levels : :py:class:`int`
             Number of levels of this Multi-Level Provider.
         """
-        return self._num_levels
+        return len(self._levels)
+
+    @property
+    def levels(self):
+        return self._levels
+
+    @property
+    def coarsest_level(self):
+        return self._levels[0]
+
+    @property
+    def finest_level(self):
+        return self._levels[-1]
 
     def _level_transition(self, coarse_level=None, fine_level=None):
         """Extracts level transition provider for given coarse and fine levels.
@@ -198,6 +252,15 @@ class MultiLevelProvider(object):
             return self._level_transitioners[coarse_level][fine_level]
         else:
             return self._default_transitioner
+
+    def __contains__(self, item):
+        if isinstance(item, AbstractLevel):
+            return item in self._levels
+        else:
+            return False
+
+    def __len__(self):
+        return len(self._levels)
 
     def __str__(self):
         return "MultiLevelProvider<0x%x>(num_level=%d)" % (id(self), self.num_levels)

@@ -3,6 +3,7 @@
 """
 from abc import ABCMeta
 from collections import OrderedDict
+from weakref import ReferenceType
 
 from pypint.multi_level_providers.level_providers import LevelHierarchyPosition
 from pypint.utilities import assert_is_instance
@@ -13,6 +14,7 @@ class AbstractLevel(object, metaclass=ABCMeta):
     def __init__(self, *args, **kwargs):
         super(AbstractLevel, self).__init__()
 
+        self._ml_provider = None
         self._hierarchy_position = LevelHierarchyPosition.undefined
 
     @property
@@ -23,6 +25,21 @@ class AbstractLevel(object, metaclass=ABCMeta):
     def hierarchy_position(self, value):
         assert_is_instance(value, LevelHierarchyPosition, descriptor="Level's Hierarchy Position", checking_obj=self)
         self._hierarchy_position = value
+
+    @property
+    def ml_provider(self):
+        if self._ml_provider is None:
+            # no weakref to an MultiLevelProvider stored
+            return None
+        else:
+            # calling the weakref object to retreive the MultiLevelProvider
+            #  (might return 'None' if the MultiLevelProvider has been destroyed)
+            return self._ml_provider()
+
+    @ml_provider.setter
+    def ml_provider(self, value):
+        assert_is_instance(value, ReferenceType, descriptor="MultiLevelProvider", checking_obj=self)
+        self._ml_provider = value
 
     def lines_for_log(self):
         _lines = OrderedDict()
