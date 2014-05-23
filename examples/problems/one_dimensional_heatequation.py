@@ -3,7 +3,7 @@ import numpy as np
 
 from pypint.problems import IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin
 from pypint.utilities import assert_condition, assert_is_instance, class_name, assert_named_argument
-from pypint.integrators.sdc import ImplicitSdcCore
+from pypint.integrators.sdc import ImplicitSdc
 
 
 class OneDimensionalHeatEquation(IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin):
@@ -91,7 +91,7 @@ class OneDimensionalHeatEquation(IInitialValueProblem, HasExactSolutionMixin, Ha
                          self)
         _int = kwargs["integral"]
 
-        if 'core' in kwargs and isinstance(kwargs['core'], ImplicitSdcCore):
+        if 'core' in kwargs and isinstance(kwargs['core'], ImplicitSdc):
             return (_phis[2] - _dn * self.lmbda * _phis[1] + _int) / (1 - self.lmbda * _dn)
         else:
             return \

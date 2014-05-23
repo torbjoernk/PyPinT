@@ -209,8 +209,8 @@ mlsdc.init(problem=problem, threshold=thresh, ml_provider=ml_provider)
 
 LOG.info(SEPARATOR_LVL1)
 LOG.info("%sLaunching MLSDC with MG" % VERBOSITY_LVL1)
-from pypint.integrators.sdc import SemiImplicitMlSdcCore
+from pypint.integrators.sdc import SemiImplicitMlSdc
 
-mlsdc.run(SemiImplicitMlSdcCore, dt=dt)
+mlsdc.run(SemiImplicitMlSdc, dt=dt)
 
 print("RHS Evaluations: %d" % problem.rhs_evaluations)
