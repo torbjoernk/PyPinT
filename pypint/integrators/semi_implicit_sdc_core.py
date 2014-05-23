@@ -3,7 +3,7 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
-from pypint.solvers.cores.sdc_solver_core import SdcSolverCore
+from pypint.integrators.sdc_solver_core import SdcSolverCore
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.problems import IProblem
 from pypint.problems.has_direct_implicit_mixin import problem_has_direct_implicit

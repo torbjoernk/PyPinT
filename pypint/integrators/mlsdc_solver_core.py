@@ -2,13 +2,12 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.solvers.cores.i_solver_core import ISolverCore
+from pypint.integrators.i_solver_core import ISolverCore
 from pypint.solvers.states.mlsdc_solver_state import MlSdcStepState
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
 from pypint.problems import IProblem
 from pypint.solvers.diagnosis import Error, Residual
 from pypint.utilities import assert_named_argument, assert_is_instance
-from pypint.utilities.logging import LOG
 
 
 class MlSdcSolverCore(ISolverCore):

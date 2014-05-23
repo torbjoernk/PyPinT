@@ -5,11 +5,10 @@
 import numpy as np
 
 from pypint.problems import IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin
-from pypint.utilities import assert_condition, assert_is_instance, class_name, assert_named_argument
-from pypint.solvers.cores.implicit_sdc_core import ImplicitSdcCore
-from pypint.solvers.cores.implicit_mlsdc_core import ImplicitMlSdcCore
-from pypint.solvers.cores.semi_implicit_mlsdc_core import SemiImplicitMlSdcCore
-from pypint.utilities.logging import LOG
+from pypint.utilities import assert_condition, assert_is_instance, assert_named_argument
+from pypint.integrators.implicit_sdc_core import ImplicitSdcCore
+from pypint.integrators.implicit_mlsdc_core import ImplicitMlSdcCore
+from pypint.integrators.semi_implicit_mlsdc_core import SemiImplicitMlSdcCore
 
 
 class LambdaU(IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin):

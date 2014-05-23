@@ -17,7 +17,7 @@ class ITransientMultigridProblem(IInitialValueProblem, MultigridProblemMixin):
         MultigridProblemMixin.__init__(self, *args, **kwargs)
 
     def implicit_solve(self, next_x, func, method="hybr", **kwargs):
-        # TODO: the real MG-stuff for SDC solver cores goes here
+        # TODO: the real MG-stuff for SDC solver integrators goes here
         pass
 
     def evaluate_wrt_space(self, **kwargs):

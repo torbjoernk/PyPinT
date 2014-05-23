@@ -6,7 +6,7 @@ from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.utilities.threshold_check import ThresholdCheck
-from pypint.solvers.cores import ExplicitSdcCore, ImplicitSdcCore, SemiImplicitSdcCore
+from pypint.integrators import ExplicitSdcCore, ImplicitSdcCore, SemiImplicitSdcCore
 from examples.problems.lambda_u import LambdaU
 from examples.problems.constant import Constant
 

@@ -209,7 +209,7 @@ mlsdc.init(problem=problem, threshold=thresh, ml_provider=ml_provider)
 
 LOG.info(SEPARATOR_LVL1)
 LOG.info("%sLaunching MLSDC with MG" % VERBOSITY_LVL1)
-from pypint.solvers.cores import SemiImplicitMlSdcCore
+from pypint.integrators import SemiImplicitMlSdcCore
 
 mlsdc.run(SemiImplicitMlSdcCore, dt=dt)
 

@@ -2,7 +2,7 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.solvers.cores.i_solver_core import ISolverCore
+from pypint.integrators.i_solver_core import ISolverCore
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
 from pypint.problems import IProblem
 from pypint.solvers.diagnosis import Error, Residual
