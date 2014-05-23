@@ -1,7 +1,12 @@
 # coding=utf-8
 """Time Level
 """
+import warnings
+
 from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
+from pypint.integrators.i_integrator import IIntegrator
+from pypint.utilities import assert_is_instance, func_name
+from pypint.utilities.logging import LOG
 
 
 class TimeLevel(AbstractLevel):
@@ -16,14 +21,23 @@ class TimeLevel(AbstractLevel):
 
     @integrator.setter
     def integrator(self, value):
+        assert_is_instance(value, IIntegrator, descriptor="Integrator", checking_obj=self)
         self._integrator = value
 
     @property
     def num_nodes(self):
+        if self.integrator is None:
+            warnings.warn("Integrator not set.")
+            LOG.warn("%sIntegrator is not set." % func_name(self))
+            return None
         return self.integrator.num_nodes
 
     @property
     def nodes(self):
+        if self.integrator is None:
+            warnings.warn("Integrator not set.")
+            LOG.warn("%sIntegrator is not set." % func_name(self))
+            return None
         return self.integrator.nodes
 
     def lines_for_log(self):
