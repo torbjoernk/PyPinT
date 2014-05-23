@@ -20,7 +20,7 @@ import matplotlib.cm as cm
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.solvers.parallel_sdc import ParallelSdc
-from pypint.integrators.semi_implicit_sdc_core import SemiImplicitSdcCore
+from pypint.integrators.sdc.semi_implicit_sdc_core import SemiImplicitSdcCore
 from pypint.utilities.threshold_check import ThresholdCheck
 from examples.problems.lambda_u import LambdaU
 

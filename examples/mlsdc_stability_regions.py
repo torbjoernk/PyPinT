@@ -22,7 +22,7 @@ from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLeve
 from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
 from pypint.communicators import ForwardSendingMessaging
 from pypint.solvers.ml_sdc import MlSdc
-from pypint.integrators.semi_implicit_mlsdc_core import SemiImplicitMlSdcCore
+from pypint.integrators.sdc.semi_implicit_mlsdc_core import SemiImplicitMlSdcCore
 from pypint.utilities.threshold_check import ThresholdCheck
 from examples.problems.lambda_u import LambdaU
 

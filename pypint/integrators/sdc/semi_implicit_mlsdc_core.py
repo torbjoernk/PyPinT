@@ -4,7 +4,7 @@
 """
 import numpy as np
 
-from pypint.integrators.mlsdc_solver_core import MlSdcSolverCore
+from pypint.integrators.sdc.mlsdc_solver_core import MlSdcSolverCore
 from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.problems import IProblem
 from pypint.problems.has_direct_implicit_mixin import problem_has_direct_implicit
