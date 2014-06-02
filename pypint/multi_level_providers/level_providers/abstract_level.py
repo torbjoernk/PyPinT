@@ -5,29 +5,31 @@ from abc import ABCMeta
 from collections import OrderedDict
 from weakref import ReferenceType
 
-from pypint.multi_level_providers.level_providers import LevelHierarchyPosition
 from pypint.utilities import assert_is_instance
 from pypint.utilities.tracing import class_name
 
 
 class AbstractLevel(object, metaclass=ABCMeta):
+    """Abstract Interface for Levels
+    """
+
     def __init__(self, *args, **kwargs):
-        super(AbstractLevel, self).__init__()
-
         self._ml_provider = None
-        self._hierarchy_position = LevelHierarchyPosition.undefined
-
-    @property
-    def hierarchy_position(self):
-        return self._hierarchy_position
-
-    @hierarchy_position.setter
-    def hierarchy_position(self, value):
-        assert_is_instance(value, LevelHierarchyPosition, descriptor="Level's Hierarchy Position", checking_obj=self)
-        self._hierarchy_position = value
 
     @property
     def ml_provider(self):
+        """Accessor for the :py:class:`.MultiLevelProvider` this Level is contained in
+
+        Returns
+        -------
+        ml_provider : :py:class:`.MultiLevelProvider` or :py:class:`None`
+            :py:class:`None` is returned if this Level is not stored in a :py:class:`.MultiLevelProvider`
+
+        Raises
+        ------
+        ValueError :
+            If ``value`` is not a :py:class:`weakref.ReferenceType` to a :py:class:`.MultiLevelProvider`.
+        """
         if self._ml_provider is None:
             # no weakref to an MultiLevelProvider stored
             return None
@@ -43,15 +45,14 @@ class AbstractLevel(object, metaclass=ABCMeta):
 
     def lines_for_log(self):
         _lines = OrderedDict()
-        _lines['Hierarchy Position'] = "%s: %d" % (self.hierarchy_position.name, self.hierarchy_position)
         return _lines
 
     def __str__(self):
-        _outstr = "%s<0x%x>(hierarchy_position=%s)" % (class_name(self), id(self), self.hierarchy_position.name)
+        _outstr = "%s<0x%x>()" % (class_name(self), id(self))
         return _outstr
 
     def __repr__(self):
-        _repr = "<%s at 0x%x : hierarchy_position=%r>" % (class_name(self), id(self), self.hierarchy_position)
+        _repr = "<%s at 0x%x>" % (class_name(self), id(self))
         return _repr
 
 

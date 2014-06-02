@@ -43,18 +43,18 @@ class TimeLevel(AbstractLevel):
     def lines_for_log(self):
         _lines = super(TimeLevel, self).lines_for_log()
         _lines.update({
-            'Integrator': self.integrator.lines_for_log()
+            'Integrator': self.integrator.lines_for_log() if self.integrator is not None else None
         })
         return _lines
 
     def __str__(self):
         _outstr = super(TimeLevel, self).__str__()[0:-1]
-        _outstr += ", integrator=%s)" % self.integrator
+        _outstr += "integrator=%s)" % self.integrator
         return _outstr
 
     def __repr__(self):
         _repr = super(TimeLevel, self).__repr__()[0:-1]
-        _repr += ", integrator=%r>" % self.integrator
+        _repr += " : integrator=%r>" % self.integrator
         return _repr
 
 

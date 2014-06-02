@@ -6,14 +6,15 @@
 from collections.abc import Container
 from collections.abc import Sized
 from weakref import ref
+from collections import OrderedDict
 
 from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
 from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
     import ILevelTransitionProvider
-from pypint.utilities import assert_condition, assert_is_instance
+from pypint.utilities import assert_condition, assert_is_instance, class_name
 
 
-class MultiLevelProvider(object, Container, Sized):
+class MultiLevelProvider(Container, Sized):
     """Container and Provider of Levels and Transitions between them
 
     As it is a container (cf. :py:class:`collections.abc.Container`) a given :py:class:`.AbstractLevel` can be tested
@@ -23,7 +24,7 @@ class MultiLevelProvider(object, Container, Sized):
     levels.
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """
         Parameters
         ----------
@@ -75,7 +76,7 @@ class MultiLevelProvider(object, Container, Sized):
         """
         return self._level_transition(coarse_level=coarse_level, fine_level=fine_level).prolongate(coarse_data)
 
-    def restringate(self, fine_data, fine_level, coarse_level=None):
+    def restrict(self, fine_data, fine_level, coarse_level=None):
         """Restringates given data from finer to coarser level.
 
         Parameters
@@ -100,7 +101,7 @@ class MultiLevelProvider(object, Container, Sized):
         --------
         :py:meth:`.ILevelTransitionProvider.restringate` : for details on restringation
         """
-        return self._level_transition(coarse_level=coarse_level, fine_level=fine_level).restringate(fine_data)
+        return self._level_transition(coarse_level=coarse_level, fine_level=fine_level).restrict(fine_data)
 
     def add_coarser_level(self, level):
         """Adds a new coarsest level.
@@ -251,7 +252,12 @@ class MultiLevelProvider(object, Container, Sized):
         if coarse_level in self._level_transitioners and fine_level in self._level_transitioners[coarse_level]:
             return self._level_transitioners[coarse_level][fine_level]
         else:
-            return self._default_transitioner
+            raise RuntimeError("Requested Level Transitioner not available: coarse %s <-> fine %s"
+                               % (coarse_level, fine_level))
+
+    def lines_for_log(self):
+        _lines = OrderedDict()
+        return _lines
 
     def __contains__(self, item):
         if isinstance(item, AbstractLevel):
@@ -263,4 +269,7 @@ class MultiLevelProvider(object, Container, Sized):
         return len(self._levels)
 
     def __str__(self):
-        return "MultiLevelProvider<0x%x>(num_level=%d)" % (id(self), self.num_levels)
+        return "%s<0x%x>(num_level=%d)" % (class_name(self), id(self), self.num_levels)
+
+    def __repr__(self):
+        return "<%s at 0x%x>" % (class_name(self), id(self))
