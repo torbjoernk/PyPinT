@@ -1,7 +1,7 @@
 # coding=utf-8
 """Abstract Base Class for Levels (space and time).
 """
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 from weakref import ReferenceType
 
@@ -15,6 +15,22 @@ class AbstractLevel(object, metaclass=ABCMeta):
 
     def __init__(self, *args, **kwargs):
         self._ml_provider = None
+
+    @abstractmethod
+    def validate_data(self, data):
+        """Checks whether given data fits to level
+
+        Parameters
+        ----------
+        data :
+            data to be checked
+
+        Returns
+        -------
+        data_valid : :py:class:`bool`
+            :py:class:`True` if data is valid, :py:class:`False` otherwise
+        """
+        pass
 
     @property
     def ml_provider(self):

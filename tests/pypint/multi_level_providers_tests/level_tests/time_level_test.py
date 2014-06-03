@@ -1,6 +1,6 @@
 # coding=utf-8
 import unittest
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import MagicMock
 import warnings
 
 from pypint.multi_level_providers.levels.time_level import TimeLevel
@@ -12,17 +12,20 @@ from pypint.utilities.quadrature.node_providers.i_nodes import INodes
 class TimeLevelTest(unittest.TestCase):
     def setUp(self):
         self._default = TimeLevel()
-        self._integrator = MagicMock(IIntegrator, name="IIntegrator")
-        self._nodes = PropertyMock(return_value=MagicMock(INodes, name="Nodes"))
-        self._integrator.nodes = self._nodes
-        self._num_nodes = PropertyMock(return_value=3)
-        self._integrator.num_nodes = self._num_nodes
+        self._integrator = MagicMock(IIntegrator, name="IIntegrator",
+                                     nodes=MagicMock(INodes, name="Nodes"),
+                                     num_nodes=3)
 
     def test_is_an_abstract_level(self):
+        # this does imply, that TimeLevel has the same behaviour as an AbstractLevel; but is a strong indicator that
+        #  it does so
         self.assertIsInstance(self._default, AbstractLevel)
 
     def test_has_integrator_accessor(self):
         self.assertIsNone(self._default.integrator, "no default Integrator set")
+
+        _test_obj = TimeLevel(integrator=self._integrator)
+        self.assertIs(_test_obj.integrator, self._integrator)
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -44,6 +47,27 @@ class TimeLevelTest(unittest.TestCase):
         self.assertIs(self._default.nodes, self._integrator.nodes)
         self.assertIsNotNone(self._default.num_nodes)
         self.assertIs(self._default.num_nodes, self._integrator.num_nodes)
+
+    def test_can_validate_data(self):
+        _valid_data = [1, 2, 3]
+        _invalid_data1 = [1, 2]
+        _invalid_data2 = 'not a list'
+
+        self._default.integrator = self._integrator
+
+        self.assertTrue(self._default.validate_data(_valid_data))
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            self.assertFalse(self._default.validate_data(_invalid_data1))
+            self.assertGreaterEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, UserWarning))
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            self.assertFalse(self._default.validate_data(_invalid_data2))
+            self.assertGreaterEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, UserWarning))
 
     def test_provides_stringification(self):
         self.assertIsNotNone(self._default.lines_for_log())
