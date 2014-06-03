@@ -19,7 +19,7 @@ import matplotlib.cm as cm
 
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
+from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
 from pypint.communicators import ForwardSendingMessaging
 from pypint.solvers.ml_sdc import MlSdc
 from pypint.integrators.sdc import SemiImplicitMlSdc

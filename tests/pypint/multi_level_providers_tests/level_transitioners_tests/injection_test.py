@@ -3,12 +3,12 @@
 
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-
-from pypint.multi_level_providers.level_transition_providers.injection \
-    import Injection
-import numpy
 import unittest
+
+import numpy
 from nose.tools import *
+
+from pypint.multi_level_providers.level_transitioners.injection import Injection
 
 
 test_data = [
@@ -50,3 +50,7 @@ class InjectionTest(unittest.TestCase):
     def test_wrong_num_fine_points(self):
         with self.assertRaises(ValueError):
             _test_obj = Injection(num_fine_points=4)
+
+
+if __name__ == "__main__":
+    unittest.main()

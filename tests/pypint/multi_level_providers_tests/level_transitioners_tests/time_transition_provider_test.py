@@ -3,11 +3,12 @@
 
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-
-from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
-import numpy
 import unittest
+
+import numpy
 from nose.tools import *
+
+from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
 from tests import assert_numpy_array_almost_equal
 
 

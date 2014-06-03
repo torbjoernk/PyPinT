@@ -3,9 +3,8 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 import numpy as np
-from math import fabs
 
-from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider import ILevelTransitionProvider
+from pypint.multi_level_providers.level_transitioners.i_level_transition_provider import ILevelTransitionProvider
 from pypint.utilities.math import lagrange_polynome
 from pypint.utilities import assert_named_argument, assert_condition
 from pypint.utilities.logging import LOG

@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import MagicMock
 import weakref
 
-from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
+from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
 from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
 
 

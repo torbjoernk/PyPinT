@@ -3,7 +3,6 @@
 
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-
 import unittest
 from unittest.mock import MagicMock
 
@@ -11,7 +10,7 @@ import numpy
 
 from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
 from pypint.utilities.quadrature.quadrature_base import QuadratureBase
-from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
+from pypint.multi_level_providers.level_transitioners.i_level_transition_provider \
     import ILevelTransitionProvider
 
 
@@ -31,20 +30,20 @@ class MultiLevelProviderTest(unittest.TestCase):
         _test_obj = MultiLevelProvider()
 
     def test_add_coarse_level(self):
-        self._test_obj.add_coarse_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
 
     def test_proxy_integrator(self):
         with self.assertRaises(IndexError):
             self._test_obj.integrator(0)
 
         # add at least one level
-        self._test_obj.add_coarse_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
         self.assertEqual(self._test_obj.num_levels, 1)
         self.assertIsInstance(self._test_obj.integrator(0), QuadratureBase)
 
         # try adding a non-QuadratureBase
         with self.assertRaises(ValueError):
-            self._test_obj.add_coarse_level(MagicMock(name="NotAnIntegrator"))
+            self._test_obj.add_coarser_level(MagicMock(name="NotAnIntegrator"))
 
     def test_proxy_transitioner(self):
         with self.assertRaises(ValueError):
@@ -53,8 +52,8 @@ class MultiLevelProviderTest(unittest.TestCase):
             self._test_obj.restringate(fine_data=self._test_data, fine_level=1)
 
         # add at two testing levels
-        self._test_obj.add_coarse_level(self._integrator)
-        self._test_obj.add_coarse_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
         self.assertEqual(self._test_obj.num_levels, 2)
 
         #
@@ -65,9 +64,9 @@ class MultiLevelProviderTest(unittest.TestCase):
 
     def test_special_transitioner(self):
         # add at three testing levels
-        self._test_obj.add_coarse_level(self._integrator)
-        self._test_obj.add_coarse_level(self._integrator)
-        self._test_obj.add_coarse_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
+        self._test_obj.add_coarser_level(self._integrator)
         self.assertEqual(self._test_obj.num_levels, 3)
 
         with self.assertRaises(ValueError):
@@ -82,3 +81,7 @@ class MultiLevelProviderTest(unittest.TestCase):
         _special_transitioner.prolongate.assert_called_once_with(self._test_data)
         self._test_obj.restringate(self._test_data, coarse_level=2, fine_level=0)
         _special_transitioner.restringate.assert_called_once_with(self._test_data)
+
+
+if __name__ == "__main__":
+    unittest.main()

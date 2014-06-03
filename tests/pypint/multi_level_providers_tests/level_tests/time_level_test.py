@@ -3,8 +3,8 @@ import unittest
 from unittest.mock import MagicMock, PropertyMock
 import warnings
 
-from pypint.multi_level_providers.level_providers.time_level import TimeLevel
-from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
+from pypint.multi_level_providers.levels.time_level import TimeLevel
+from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
 from pypint.integrators.i_integrator import IIntegrator
 from pypint.utilities.quadrature.node_providers.i_nodes import INodes
 

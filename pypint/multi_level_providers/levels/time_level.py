@@ -3,7 +3,7 @@
 """
 import warnings
 
-from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
+from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
 from pypint.integrators.i_integrator import IIntegrator
 from pypint.utilities import assert_is_instance, func_name
 from pypint.utilities.logging import LOG

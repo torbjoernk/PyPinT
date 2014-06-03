@@ -5,12 +5,11 @@
 """
 from collections.abc import Container
 from collections.abc import Sized
-from weakref import ref
 from collections import OrderedDict
+from weakref import ref
 
-from pypint.multi_level_providers.level_providers.abstract_level import AbstractLevel
-from pypint.multi_level_providers.level_transition_providers.i_level_transition_provider \
-    import ILevelTransitionProvider
+from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
+from pypint.multi_level_providers.level_transitioners.i_level_transition_provider import ILevelTransitionProvider
 from pypint.utilities import assert_condition, assert_is_instance, class_name
 
 

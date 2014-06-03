@@ -3,7 +3,7 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
-from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
+from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
 from pypint.utilities import assert_is_instance
 
 
