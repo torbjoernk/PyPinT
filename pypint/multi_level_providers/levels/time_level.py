@@ -36,12 +36,13 @@ class TimeLevel(AbstractLevel):
         -------
         data_valid : :py:class:`bool`
             :py:class:`False` if ``data`` is not a :py:class:`list` or :py:class:`numpy.ndarray` with
-            :py:attr:`.num_nodes` elements; :py:class:`False` otherwise.
+            :py:attr:`.num_nodes` elements and all elements are instances of the same class;
+            :py:class:`False` otherwise.
         """
         super(TimeLevel, self).validate_data(data)
         if isinstance(data, (list, ndarray)):
             if len(data) == self.num_nodes:
-                return True
+                return all(elem.__class__ is data[0].__class__ for elem in data)
             else:
                 warnings.warn("Given data has incompatible length: %s != %s" % (len(data), self.num_nodes))
                 LOG.warn("%sGiven data has incompatible length: %s != %s"

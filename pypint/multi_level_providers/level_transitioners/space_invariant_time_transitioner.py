@@ -23,33 +23,33 @@ class SpaceInvariantTimeTransitioner(AbstractLevelTransitioner):
 
     @AbstractLevelTransitioner.coarse_level.setter
     def coarse_level(self, coarse_level):
-        super(self.__class__, self.__class__).coarse_level.fset(coarse_level)
+        super(self.__class__, self.__class__).coarse_level.fset(self, coarse_level)
         assert_is_instance(coarse_level(), TimeLevel, descriptor="Coarse Level", checking_obj=self)
         self._compute_time_prolongation_matrix()
         self._compute_time_restriction_matrix()
 
     @AbstractLevelTransitioner.fine_level.setter
     def fine_level(self, fine_level):
-        super(self.__class__, self.__class__).fine_level.fset(fine_level)
+        super(self.__class__, self.__class__).fine_level.fset(self, fine_level)
         assert_is_instance(fine_level(), TimeLevel, descriptor="Fine Level", checking_obj=self)
         self._compute_time_prolongation_matrix()
         self._compute_time_restriction_matrix()
 
     def _prolongate_time(self, coarse_data):
-        super(SpaceInvariantTimeTransitioner, self).prolongate(coarse_data)
-        _fine = [None] * self.fine_level().num_nodes
-        for k in range(0, self.fine_level().num_nodes):
+        super(SpaceInvariantTimeTransitioner, self)._prolongate_time(coarse_data)
+        _fine = [None] * self.fine_level.num_nodes
+        for k in range(0, self.fine_level.num_nodes):
             _fine[k] = coarse_data[0] * self.time_prolongation_operator[k][0]
-            for j in range(1, self.coarse_level().num_nodes):
+            for j in range(1, self.coarse_level.num_nodes):
                 _fine[k] += coarse_data[j] * self.time_prolongation_operator[k][j]
         return _fine
 
     def _restrict_time(self, fine_data):
-        super(SpaceInvariantTimeTransitioner, self).restrict(fine_data)
-        _coarse = [None] * self.coarse_level().num_nodes
-        for k in range(0, self.coarse_level().num_nodes):
+        super(SpaceInvariantTimeTransitioner, self)._restrict_time(fine_data)
+        _coarse = [None] * self.coarse_level.num_nodes
+        for k in range(0, self.coarse_level.num_nodes):
             _coarse[k] = fine_data[0] * self.time_restriction_operator[k][0]
-            for j in range(1, self.fine_level().num_nodes):
+            for j in range(1, self.fine_level.num_nodes):
                 _coarse[k] += fine_data[j] * self.time_restriction_operator[k][j]
         return _coarse
 
@@ -64,12 +64,12 @@ class SpaceInvariantTimeTransitioner(AbstractLevelTransitioner):
     def _compute_time_prolongation_matrix(self):
         if self.coarse_level is not None and self.fine_level is not None:
             # from here we can assume, that fine_level and coarse_level are available as weakrefs
-            self._time_prolongation_operator = np.zeros((self.fine_level().num_nodes, self.coarse_level().num_nodes),
+            self._time_prolongation_operator = np.zeros((self.fine_level.num_nodes, self.coarse_level.num_nodes),
                                                         dtype=float)
-            for k in range(0, self.fine_level().num_nodes):
-                for j in range(0, self.coarse_level().num_nodes):
-                    self._time_prolongation_operator[k][j] = lagrange_polynome(j, self.coarse_level().nodes,
-                                                                               self.fine_level().nodes[k])
+            for k in range(0, self.fine_level.num_nodes):
+                for j in range(0, self.coarse_level.num_nodes):
+                    self._time_prolongation_operator[k][j] = lagrange_polynome(j, self.coarse_level.nodes,
+                                                                               self.fine_level.nodes[k])
             # LOG.debug("Prolongation Operator: %s" % self._time_prolongation_operator)
         else:
             warnings.warn("Coarse and/or Fine Level not given but required for computing prolongation operator.")
@@ -79,12 +79,12 @@ class SpaceInvariantTimeTransitioner(AbstractLevelTransitioner):
     def _compute_time_restriction_matrix(self):
         if self.coarse_level is not None and self.fine_level is not None:
             # from here we can assume, that fine_level and coarse_level are available as weakrefs
-            self._time_restriction_operator = np.zeros((self.coarse_level().num_nodes, self.fine_level().num_nodes),
+            self._time_restriction_operator = np.zeros((self.coarse_level.num_nodes, self.fine_level.num_nodes),
                                                        dtype=float)
-            for k in range(0, self.coarse_level().num_nodes):
-                for j in range(0, self.fine_level().num_nodes):
-                    self._time_restriction_operator[k][j] = lagrange_polynome(j, self.fine_level().nodes,
-                                                                              self.coarse_level().nodes[k])
+            for k in range(0, self.coarse_level.num_nodes):
+                for j in range(0, self.fine_level.num_nodes):
+                    self._time_restriction_operator[k][j] = lagrange_polynome(j, self.fine_level.nodes,
+                                                                              self.coarse_level.nodes[k])
             # LOG.debug("Restriction Operator: %s" % self._time_restriction_operator)
         else:
             warnings.warn("Coarse and/or Fine Level not given but required for computing restriction operator.")

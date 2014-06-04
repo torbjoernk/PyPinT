@@ -26,14 +26,17 @@ class AbstractLevelTransitioner(object, metaclass=ABCMeta):
             Fine Level; see :py:attr:`.fine_level` for details
         """
         self._coarse_level = None
-        self.coarse_level = kwargs.get('coarse_level')
         self._fine_level = None
-        self.fine_level = kwargs.get('fine_level')
 
         self._time_prolongation_operator = None
         self._spatial_prolongation_operator = None
         self._time_restriction_operator = None
         self._spatial_restriction_operator = None
+
+        if 'coarse_level' in kwargs:
+            self.coarse_level = kwargs['coarse_level']
+        if 'fine_level' in kwargs:
+            self.fine_level = kwargs['fine_level']
 
     def prolongate(self, coarse_data):
         """Prolongates given data from the coarse to the fine level in space and time.
@@ -225,18 +228,18 @@ class AbstractLevelTransitioner(object, metaclass=ABCMeta):
 
     def lines_for_log(self):
         _lines = OrderedDict()
-        _lines['Coarse Level'] = self.coarse_level().lines_for_log() if self.coarse_level is not None else None
-        _lines['Fine Level'] = self.fine_level().lines_for_log() if self.fine_level is not None else None
+        _lines['Coarse Level'] = self.coarse_level.lines_for_log() if self.coarse_level is not None else 'na'
+        _lines['Fine Level'] = self.fine_level.lines_for_log() if self.fine_level is not None else 'na'
         return _lines
 
     def __str__(self):
         return "%s<0x%x>(coarse_level=%s, fine_level=%s)" \
             % (class_name(self), id(self),
-               self.coarse_level() if self.coarse_level is not None else None,
-               self.fine_level() if self.fine_level is not None else None)
+               self.coarse_level if self.coarse_level is not None else None,
+               self.fine_level if self.fine_level is not None else None)
 
     def __repr__(self):
         return "<%s at 0x%x : coarse_level=%r, fine_level=%r>" \
             % (class_name(self), id(self),
-               self.coarse_level() if self.coarse_level is not None else None,
-               self.fine_level() if self.fine_level is not None else None)
+               self.coarse_level if self.coarse_level is not None else None,
+               self.fine_level if self.fine_level is not None else None)
