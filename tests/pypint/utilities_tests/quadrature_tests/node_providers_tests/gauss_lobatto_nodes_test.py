@@ -1,62 +1,51 @@
 # coding=utf-8
+import numpy
 
-import unittest
-from nose.tools import *
-import numpy as np
-
+from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
 from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from tests import NumpyAwareTestCase, assert_numpy_array_almost_equal
+
+GAUSS_LOBATTO_NODES = {
+    2: numpy.array([-1.0, 1.0]),
+    3: numpy.array([-1.0, 0.0, 1.0]),
+    4: numpy.array([-1.0, -numpy.sqrt(1.0 / 5.0), numpy.sqrt(1.0 / 5.0), 1.0]),
+    5: numpy.array([-1.0, -numpy.sqrt(3.0 / 7.0), 0.0, numpy.sqrt(3.0 / 7.0), 1.0])
+}
 
 
-test_num_nodes = range(3, 7)
+def correctness_of_nodes(n_nodes, expected):
+    nodes = GaussLobattoNodes(n_nodes=n_nodes)
+    assert_numpy_array_almost_equal(nodes.nodes, expected)
 
 
-def manual_initialization(n_nodes):
-    nodes = GaussLobattoNodes()
-    nodes.init(n_nodes)
-    assert_equal(nodes.num_nodes, n_nodes,
-                 "Number of nodes should be set")
-    assert_is_instance(nodes.nodes, np.ndarray,
-                       "Nodes should be a numpy.ndarray")
-    assert_equal(nodes.nodes.size, n_nodes,
-                 "There should be correct number of nodes")
+def test_correctness_of_nodes():
+    for n_nodes in GAUSS_LOBATTO_NODES:
+        yield correctness_of_nodes, n_nodes, GAUSS_LOBATTO_NODES[n_nodes]
 
 
-def test_manual_initialization():
-    for n_nodes in test_num_nodes:
-        yield manual_initialization, n_nodes
-
-
-class GaussLobattoNodesTest(unittest.TestCase):
+class GaussLobattoNodesTest(NumpyAwareTestCase):
     def setUp(self):
-        self._test_obj = GaussLobattoNodes()
+        self._default = GaussLobattoNodes()
 
-    def test_default_initialization(self):
-        self.assertIsNone(self._test_obj.num_nodes,
-                          "Number of nodes should be initialized as 'None'")
-        self.assertIsNone(self._test_obj.nodes,
-                          "Nodes list should be initializes as 'None'")
+    def test_is_abstract_nodes(self):
+        self.assertIsInstance(self._default, AbstractNodes)
 
-    def test_correctness_of_selected_nodes(self):
-        self._test_obj.init(3)
-        self.assertAlmostEqual(self._test_obj.nodes[0], -1.0)
-        self.assertAlmostEqual(self._test_obj.nodes[1], 0.0)
-        self.assertAlmostEqual(self._test_obj.nodes[2], 1.0)
+    def test_is_named(self):
+        self.assertEqual(self._default.name, 'Gauss-Lobatto')
 
-        self.setUp()
-        self._test_obj.init(4)
-        self.assertAlmostEqual(self._test_obj.nodes[0], -1.0)
-        self.assertAlmostEqual(self._test_obj.nodes[1], -np.sqrt(1.0 / 5.0))
-        self.assertAlmostEqual(self._test_obj.nodes[2], np.sqrt(1.0 / 5.0))
-        self.assertAlmostEqual(self._test_obj.nodes[3], 1.0)
+    def test_interval_transformation(self):
+        self._default.init(n_nodes=3)
+        self.assertNumpyArrayAlmostEqual(self._default.nodes, GAUSS_LOBATTO_NODES[3])
+        self._default.interval = numpy.array([0.0, 1.0])
+        self._default.interval = GaussLobattoNodes.STANDARD_INTERVAL
+        self.assertNumpyArrayAlmostEqual(self._default.nodes, GAUSS_LOBATTO_NODES[3])
 
         self.setUp()
-        self._test_obj.init(5)
-        self.assertAlmostEqual(self._test_obj.nodes[0], -1.0)
-        self.assertAlmostEqual(self._test_obj.nodes[1], -np.sqrt(3.0 / 7.0))
-        self.assertAlmostEqual(self._test_obj.nodes[2], 0.0)
-        self.assertAlmostEqual(self._test_obj.nodes[3], np.sqrt(3.0 / 7.0))
-        self.assertAlmostEqual(self._test_obj.nodes[4], 1.0)
+        self._default.init(n_nodes=3, interval=numpy.array([0.0, 1.0]))
+        self._default.interval = GaussLobattoNodes.STANDARD_INTERVAL
+        self.assertNumpyArrayAlmostEqual(self._default.nodes, GAUSS_LOBATTO_NODES[3])
 
 
 if __name__ == "__main__":
+    import unittest
     unittest.main()

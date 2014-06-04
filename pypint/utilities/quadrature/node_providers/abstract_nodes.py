@@ -1,31 +1,37 @@
 # coding=utf-8
 """
-
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from copy import deepcopy
+from abc import ABCMeta, abstractmethod
+from collections import OrderedDict
 
 import numpy as np
 
+from pypint.utilities.abc import Deepcopyable
 from pypint.utilities import assert_is_instance, assert_condition, class_name
-from pypint.utilities.logging import LOG
 
 
-class INodes(object):
+class AbstractNodes(Deepcopyable, metaclass=ABCMeta):
     """Provider for integration nodes.
 
     This is an abstract interface for providers of integration nodes.
     """
 
-    std_interval = np.array([0.0, 0.0])
+    STANDARD_INTERVAL = np.array([0.0, 0.0])
     """Standard interval for this integration nodes.
     """
 
-    def __init__(self):
-        self._num_nodes = None
-        self._nodes = None
-        self._interval = None
+    def __init__(self, *args, **kwargs):
+        _n_nodes = kwargs.get('n_nodes', 0)
+        self._nodes = np.zeros(_n_nodes)
+        self._interval = np.zeros(2)
 
+    @property
+    @abstractmethod
+    def name(self):
+        return 'Abstract'
+
+    @abstractmethod
     def init(self, n_nodes, interval=None):
         """Initializes the vector of integration nodes of size `n_nodes`.
 
@@ -46,7 +52,8 @@ class INodes(object):
         --------
         :py:attr:`.interval` : Accessor for the interval.
         """
-        pass
+        assert_is_instance(n_nodes, int, descriptor="Number Nodes", checking_obj=self)
+        self._nodes = np.zeros(n_nodes)
 
     def transform(self, interval):
         """Transforms computed integration nodes to fit a new given interval.
@@ -84,12 +91,6 @@ class INodes(object):
         self._interval = interval
         self._nodes = (self.nodes - _old_interval[0]) * (interval[1] - interval[0]) / \
                       (_old_interval[1] - _old_interval[0]) + interval[0]
-        assert_condition(self._nodes[0] - self._interval[0] <= 1e-16 and self._nodes[-1] - self._interval[1] <= 1e-16,
-                         RuntimeError,
-                         message="Newly computed nodes do not match new interval: {} NOT IN {}"
-                                 .format(self._nodes, self._interval),
-                         checking_obj=self)
-        LOG.debug("Nodes: %s" % self._nodes.tolist())
 
     @property
     def interval(self):
@@ -144,30 +145,16 @@ class INodes(object):
         -----
         Specializations of this interface might override this accessor.
         """
-        return self._num_nodes
+        return self._nodes.size
 
-    @num_nodes.setter
-    def num_nodes(self, num_nodes):
-        self._num_nodes = num_nodes
-
-    def print_lines_for_log(self):
-        _lines = {
-            'Type': class_name(self),
-            'Number Nodes': "%d" % self.num_nodes
-        }
+    def lines_for_log(self):
+        _lines = OrderedDict()
+        _lines['Type'] = self.name
+        _lines['Number Nodes'] = "%d" % self.num_nodes
         return _lines
 
     def __str__(self):
-        return "INodes<0x%x>(n=%d, nodes=%s)" % (id(self), self.num_nodes, self.nodes)
+        return "%s<0x%x>(n=%d, nodes=%s)" % (class_name(self), id(self), self.num_nodes, self.nodes)
 
-    def __copy__(self):
-        copy = self.__class__.__new__(self.__class__)
-        copy.__dict__.update(self.__dict__)
-        return copy
-
-    def __deepcopy__(self, memo):
-        copy = self.__class__.__new__(self.__class__)
-        memo[id(self)] = copy
-        for item, value in self.__dict__.items():
-            setattr(copy, item, deepcopy(value, memo))
-        return copy
+    def __repr__(self):
+        return "<%s at 0x%x : n=%d, nodes=%s>" % (class_name(self), id(self), self.num_nodes, self.nodes)

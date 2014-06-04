@@ -6,14 +6,14 @@ import warnings
 from pypint.multi_level_providers.levels.time_level import TimeLevel
 from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
 from pypint.integrators.i_integrator import IIntegrator
-from pypint.utilities.quadrature.node_providers.i_nodes import INodes
+from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
 
 
 class TimeLevelTest(unittest.TestCase):
     def setUp(self):
         self._default = TimeLevel()
         self._integrator = MagicMock(IIntegrator, name="IIntegrator",
-                                     nodes=MagicMock(INodes, name="Nodes"),
+                                     nodes=MagicMock(AbstractNodes, name="Nodes"),
                                      num_nodes=3)
 
     def test_is_an_abstract_level(self):

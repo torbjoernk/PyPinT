@@ -1,26 +1,31 @@
 # coding=utf-8
 """
-
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 import numpy as np
 from scipy import linalg
 
-from pypint.utilities.quadrature.node_providers.i_nodes import INodes
-from pypint.utilities import assert_condition
+from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
 
 
-class GaussLegendreNodes(INodes):
+class GaussLegendreNodes(AbstractNodes):
     """Provider for Gauss-Legendre integration nodes with variable count.
     """
 
-    std_interval = np.array([-1.0, 1.0])
+    STANDARD_INTERVAL = np.array([-1.0, 1.0])
     """Standard integration interval
     """
 
-    def __init__(self):
-        super(GaussLegendreNodes, self).__init__()
-        self._interval = GaussLegendreNodes.std_interval
+    def __init__(self, *args, **kwargs):
+        super(GaussLegendreNodes, self).__init__(*args, **kwargs)
+        self._interval = GaussLegendreNodes.STANDARD_INTERVAL
+        if 'n_nodes' in kwargs:
+            self.init(kwargs['n_nodes'])
+
+    @AbstractNodes.name.getter
+    def name(self):
+        super(self.__class__, self.__class__).name.fget(self)
+        return 'Gauss-Legendre'
 
     def init(self, n_nodes, interval=None):
         """Initializes and computes Gauss-Legendre nodes.
@@ -32,37 +37,12 @@ class GaussLegendreNodes(INodes):
 
         See Also
         --------
-        :py:meth:`.INodes.init` : overridden method
+        :py:meth:`.AbstractNodes.init` : overridden method
         """
         super(GaussLegendreNodes, self).init(n_nodes, interval)
-        self.num_nodes = n_nodes
-        self._nodes = np.zeros(self.num_nodes)
         self._compute_nodes()
         if interval is not None:
             self.transform(interval)
-
-    @property
-    def num_nodes(self):
-        """Accessor of number of Gauss-Legendre nodes.
-
-        Raises
-        ------
-        ValueError
-            if ``n_nodes`` is smaller than 2 *(only Setter)*.
-
-        See Also
-        --------
-        :py:attr:`.INodes.num_nodes` : overridden method
-        """
-        return super(self.__class__, self.__class__).num_nodes.fget(self)
-
-    @num_nodes.setter
-    def num_nodes(self, n_nodes):
-        super(self.__class__, self.__class__).num_nodes.fset(self, n_nodes)
-        assert_condition(n_nodes >= 1,
-                         ValueError, message="Gauss-Legendre with less than one node doesn't make any sense.",
-                         checking_obj=self)
-        self._num_nodes = n_nodes
 
     def _compute_nodes(self):
         """Computats nodes for the Gauss-Legendre quadrature of order :math:`n>1` on :math:`[-1,+1]`.
@@ -100,6 +80,3 @@ class GaussLegendreNodes(INodes):
         nodes = eig_vals[indizes]
 
         self._nodes = nodes.real
-
-    def __str__(self):
-        return "GaussLegendreNodes<0x%x>(n=%d, nodes=%s)" % (id(self), self.num_nodes, self.nodes)
