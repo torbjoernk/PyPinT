@@ -4,83 +4,155 @@
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 import unittest
-from unittest.mock import MagicMock
-
-import numpy
+from unittest.mock import MagicMock, ANY
 
 from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
-from pypint.utilities.quadrature.quadrature_base import QuadratureBase
-from pypint.multi_level_providers.level_transitioners.i_level_transition_provider \
-    import ILevelTransitionProvider
+from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
+from pypint.multi_level_providers.level_transitioners.abstract_level_transitioner import AbstractLevelTransitioner
 
 
 class MultiLevelProviderTest(unittest.TestCase):
     def setUp(self):
-        # mocks
-        self._integrator = MagicMock(name="IntegratorBaseMock")
-        self._integrator.__class__ = QuadratureBase
-        self._level_transitioner = MagicMock(name="ILevelTransitionProviderMock")
-        self._level_transitioner.__class__ = ILevelTransitionProvider
+        self._coarsest_level = MagicMock(AbstractLevel, 'Coarsest Level')
+        self._intermediate_level = MagicMock(AbstractLevel, 'Intermediate Level')
+        self._finest_level = MagicMock(AbstractLevel, 'Finest Level')
 
-        # test obj
-        self._test_obj = MultiLevelProvider(default_transitioner=self._level_transitioner)
-        self._test_data = numpy.zeros(4)
+        self._coarse_intermediate = MagicMock(AbstractLevelTransitioner, 'Coarse to Intermediate Transitioner',
+                                              coarse_level=self._coarsest_level,
+                                              fine_level=self._intermediate_level,
+                                              prolongate=lambda *args: 'prolongated data',
+                                              restrict=lambda *args: 'restricted data')
+        self._intermediate_fine = MagicMock(AbstractLevelTransitioner, 'Intermediate to Fine Transitioner',
+                                            coarse_level=self._intermediate_level,
+                                            fine_level=self._finest_level,
+                                            prolongate=lambda *args: 'prolongated data',
+                                            restrict=lambda *args: 'restricted data')
 
-    def test_initialization(self):
-        _test_obj = MultiLevelProvider()
+        self._default = MultiLevelProvider()
 
-    def test_add_coarse_level(self):
-        self._test_obj.add_coarser_level(self._integrator)
+    def test_is_container_for_levels(self):
+        self.assertEqual(self._default.num_levels, 0)
+        self._default.add_coarser_level(self._coarsest_level)
+        self.assertIn(self._coarsest_level, self._default)
+        self.assertNotIn(self._finest_level, self._default)
+        self.assertNotIn('not a level', self._default)
 
-    def test_proxy_integrator(self):
+    def test_add_and_access_coarser_level(self):
+        self.assertEqual(self._default.num_levels, 0)
+        self.assertListEqual(self._default.levels, [])
+
+        with self.assertRaises(ValueError):
+            self._default.add_coarser_level('not an AbstractLevel')
+
+        self._default.add_coarser_level(self._intermediate_level)
+        self.assertEqual(self._default.num_levels, 1)
+        self.assertListEqual(self._default.levels, [self._intermediate_level])
+        self.assertEqual(self._default.coarsest_level, self._default.finest_level)
+
+        self._default.add_coarser_level(self._coarsest_level)
+        self.assertEqual(self._default.num_levels, 2)
+        self.assertListEqual(self._default.levels, [self._coarsest_level, self._intermediate_level])
+
+        self.assertEqual(self._default.level(0), self._coarsest_level)
+        self.assertEqual(self._default.level(1), self._intermediate_level)
         with self.assertRaises(IndexError):
-            self._test_obj.integrator(0)
+            self._default.level(2)
 
-        # add at least one level
-        self._test_obj.add_coarser_level(self._integrator)
-        self.assertEqual(self._test_obj.num_levels, 1)
-        self.assertIsInstance(self._test_obj.integrator(0), QuadratureBase)
-
-        # try adding a non-QuadratureBase
-        with self.assertRaises(ValueError):
-            self._test_obj.add_coarser_level(MagicMock(name="NotAnIntegrator"))
-
-    def test_proxy_transitioner(self):
-        with self.assertRaises(ValueError):
-            self._test_obj.prolongate(coarse_data=self._test_data, coarse_level=0)
-        with self.assertRaises(ValueError):
-            self._test_obj.restringate(fine_data=self._test_data, fine_level=1)
-
-        # add at two testing levels
-        self._test_obj.add_coarser_level(self._integrator)
-        self._test_obj.add_coarser_level(self._integrator)
-        self.assertEqual(self._test_obj.num_levels, 2)
-
-        #
-        self._test_obj.prolongate(coarse_data=self._test_data, coarse_level=1)
-        self._level_transitioner.prolongate.assert_called_once_with(self._test_data)
-        self._test_obj.restringate(fine_data=self._test_data, fine_level=0)
-        self._level_transitioner.restringate.assert_called_once_with(self._test_data)
-
-    def test_special_transitioner(self):
-        # add at three testing levels
-        self._test_obj.add_coarser_level(self._integrator)
-        self._test_obj.add_coarser_level(self._integrator)
-        self._test_obj.add_coarser_level(self._integrator)
-        self.assertEqual(self._test_obj.num_levels, 3)
+    def test_add_and_access_finer_level(self):
+        self.assertEqual(self._default.num_levels, 0)
+        self.assertListEqual(self._default.levels, [])
 
         with self.assertRaises(ValueError):
-            self._test_obj.add_level_transition(MagicMock(name="NotATransitioner"), coarse_level=2, fine_level=0)
+            self._default.add_finer_level('not an AbstractLevel')
 
-        # mocks
-        _special_transitioner = MagicMock(name="SpecialLevelTransitioner")
-        _special_transitioner.__class__ = ILevelTransitionProvider
+        self._default.add_finer_level(self._intermediate_level)
+        self.assertEqual(self._default.num_levels, 1)
+        self.assertListEqual(self._default.levels, [self._intermediate_level])
+        self.assertEqual(self._default.coarsest_level, self._default.finest_level)
 
-        self._test_obj.add_level_transition(_special_transitioner, coarse_level=2, fine_level=0)
-        self._test_obj.prolongate(self._test_data, coarse_level=2, fine_level=0)
-        _special_transitioner.prolongate.assert_called_once_with(self._test_data)
-        self._test_obj.restringate(self._test_data, coarse_level=2, fine_level=0)
-        _special_transitioner.restringate.assert_called_once_with(self._test_data)
+        self._default.add_finer_level(self._finest_level)
+        self.assertEqual(self._default.num_levels, 2)
+        self.assertListEqual(self._default.levels, [self._intermediate_level, self._finest_level])
+
+        self.assertEqual(self._default.level(0), self._intermediate_level)
+        self.assertEqual(self._default.level(1), self._finest_level)
+        with self.assertRaises(IndexError):
+            self._default.level(2)
+
+    def test_relative_level_accessors(self):
+        self._default.add_coarser_level(self._coarsest_level)
+        self._default.add_finer_level(self._finest_level)
+        self.assertEqual(self._default.num_levels, 2)
+
+        self.assertEqual(self._default.get_coarser_level(self._finest_level), self._coarsest_level)
+        self.assertIsNone(self._default.get_coarser_level(self._coarsest_level))
+
+        self.assertEqual(self._default.get_finer_level(self._coarsest_level), self._finest_level)
+        self.assertIsNone(self._default.get_finer_level(self._finest_level))
+
+        with self.assertRaises(ValueError):
+            self._default.get_finer_level(self._intermediate_level)
+
+        with self.assertRaises(ValueError):
+            self._default.get_coarser_level(self._intermediate_level)
+
+    def test_add_transitioners(self):
+        self._default.add_coarser_level(self._coarsest_level)
+        self._default.add_finer_level(self._intermediate_level)
+        self.assertEqual(self._default.num_levels, 2)
+
+        self._default.add_level_transition(self._coarse_intermediate)
+
+        with self.assertRaises(ValueError):
+            self._default.add_level_transition(self._intermediate_fine)
+
+        self._default.add_finer_level(self._finest_level)
+        self.assertEqual(self._default.num_levels, 3)
+        with self.assertRaises(RuntimeError):
+            self._default.restrict(ANY, self._finest_level, self._intermediate_level)
+        self._default.add_level_transition(self._intermediate_fine)
+
+    def test_restriction_and_prolongation(self):
+        self._default.add_coarser_level(self._coarsest_level)
+        self._default.add_finer_level(self._intermediate_level)
+        self.assertEqual(self._default.num_levels, 2)
+        self._default.add_level_transition(self._coarse_intermediate)
+
+        self.assertEqual(self._default.restrict(ANY, self._intermediate_level, self._coarsest_level),
+                         'restricted data')
+        self.assertEqual(self._default.restrict(ANY, self._intermediate_level), 'restricted data')
+        self.assertEqual(self._default.prolongate(ANY, self._coarsest_level, self._intermediate_level),
+                         'prolongated data')
+        self.assertEqual(self._default.prolongate(ANY, self._coarsest_level), 'prolongated data')
+
+    def test_provides_stringification(self):
+        self.assertRegex(str(self._default), '^MultiLevelProvider<0x[0-9a-f]*>\(num_level=0\)$')
+        self.assertRegex(repr(self._default), '^<MultiLevelProvider at 0x[0-9a-f]* : num_level=0>$')
+        self.assertIn('Number Levels', self._default.lines_for_log())
+        self.assertEqual(self._default.lines_for_log()['Number Levels'], '0')
+        self.assertIn('Levels', self._default.lines_for_log())
+        self.assertEqual(self._default.lines_for_log()['Levels'], 'na')
+        self.assertIn('Transitioners', self._default.lines_for_log())
+        self.assertEqual(self._default.lines_for_log()['Transitioners'], 'na')
+
+        self._default.add_coarser_level(self._coarsest_level)
+        self._default.add_finer_level(self._intermediate_level)
+        self.assertEqual(self._default.num_levels, 2)
+        self._default.add_level_transition(self._coarse_intermediate)
+        self.assertRegex(str(self._default), '^MultiLevelProvider<0x[0-9a-f]*>\(num_level=2\)$')
+        self.assertRegex(repr(self._default), '^<MultiLevelProvider at 0x[0-9a-f]* : num_level=2>$')
+        self.assertIn('Number Levels', self._default.lines_for_log())
+        self.assertEqual(self._default.lines_for_log()['Number Levels'], '2')
+        self.assertIn('Levels', self._default.lines_for_log())
+        self.assertIn('Coarsest', self._default.lines_for_log()['Levels'])
+        self.assertIn('Finest', self._default.lines_for_log()['Levels'])
+        self.assertIn('Transitioners', self._default.lines_for_log())
+
+        self._default.add_finer_level(self._finest_level)
+        self.assertEqual(self._default.num_levels, 3)
+        self._default.add_level_transition(self._intermediate_fine)
+        self.assertEqual(self._default.lines_for_log()['Number Levels'], '3')
+        self.assertIn('Intermediate', self._default.lines_for_log()['Levels'])
 
 
 if __name__ == "__main__":
