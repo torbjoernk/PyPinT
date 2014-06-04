@@ -4,11 +4,17 @@ import unittest
 import numpy as np
 
 from pypint.utilities.data_structures.scalar_1d import Scalar1D
+from pypint.utilities.data_structures.abstract_spatial_object import AbstractSpatialObject
 
 
 class Scalar1DTest(unittest.TestCase):
     def setUp(self):
         self._default = Scalar1D()
+
+    def test_is_abstract_spatial_object(self):
+        # this does imply, that Scalar1D has the same behaviour as an AbstractSpatialObject;
+        #  but is a strong indicator that it does so
+        self.assertIsInstance(self._default, AbstractSpatialObject)
 
     def test_constructor_takes_value(self):
         _positional = Scalar1D(1.0)
