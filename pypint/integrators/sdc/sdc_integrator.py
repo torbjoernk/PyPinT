@@ -2,14 +2,14 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.integrators.i_solver_core import ISolverCore
+from pypint.integrators.i_integrator import IIntegrator
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
 from pypint.problems import IProblem
 from pypint.solvers.diagnosis import Error, Residual
 from pypint.utilities import assert_named_argument
 
 
-class SdcSolverCore(ISolverCore):
+class SdcIntegrator(IIntegrator):
     """Provides the Step-Method-Core for :py:class:`.Sdc` solver.
 
     This is to be used as a Mixin for the :py:class:`.Sdc` solver to provide the core step-methods such as the explicit,
@@ -29,14 +29,14 @@ class SdcSolverCore(ISolverCore):
     name = 'SDC Solver Core'
 
     def __init__(self):
-        super(SdcSolverCore, self).__init__()
+        super(SdcIntegrator, self).__init__()
 
     def run(self, state, **kwargs):
-        super(SdcSolverCore, self).run(state, **kwargs)
+        super(SdcIntegrator, self).run(state, **kwargs)
 
     def compute_residual(self, state, **kwargs):
         # LOG.debug("computing residual")
-        super(SdcSolverCore, self).compute_residual(state, **kwargs)
+        super(SdcIntegrator, self).compute_residual(state, **kwargs)
         _step = kwargs['step'] if 'step' in kwargs else state.current_step
         _step.solution.residual = Residual(
             abs(state.current_time_step.initial.value
@@ -50,7 +50,7 @@ class SdcSolverCore(ISolverCore):
         #                   state.current_step.value[0]))
 
     def compute_error(self, state, **kwargs):
-        super(SdcSolverCore, self).compute_error(state, **kwargs)
+        super(SdcIntegrator, self).compute_error(state, **kwargs)
 
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
 
@@ -84,4 +84,4 @@ class SdcSolverCore(ISolverCore):
             return state.initial
 
 
-__all__ = ['SdcSolverCore']
+__all__ = ['SdcIntegrator']

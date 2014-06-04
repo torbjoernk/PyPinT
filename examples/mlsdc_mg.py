@@ -169,7 +169,7 @@ problem._mg_stencil.grid = fine_mg_level.mid.shape
 LOG.info(SEPARATOR_LVL2)
 LOG.info("%sSetting Up MLSDC Solver" % VERBOSITY_LVL1)
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
+from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 
 base_mlsdc_level = SdcQuadrature()
@@ -209,8 +209,8 @@ mlsdc.init(problem=problem, threshold=thresh, ml_provider=ml_provider)
 
 LOG.info(SEPARATOR_LVL1)
 LOG.info("%sLaunching MLSDC with MG" % VERBOSITY_LVL1)
-from pypint.integrators.sdc import SemiImplicitMlSdcCore
+from pypint.integrators.sdc import SemiImplicitMlSdc
 
-mlsdc.run(SemiImplicitMlSdcCore, dt=dt)
+mlsdc.run(SemiImplicitMlSdc, dt=dt)
 
 print("RHS Evaluations: %d" % problem.rhs_evaluations)

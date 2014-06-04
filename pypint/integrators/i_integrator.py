@@ -7,7 +7,7 @@ from pypint.utilities import assert_is_instance
 from pypint.solvers.states.i_solver_state import ISolverState
 
 
-class ISolverCore(object):
+class IIntegrator(object):
     """Interface for the Solver's Cores
     """
 
@@ -49,4 +49,4 @@ class ISolverCore(object):
         assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
 
 
-__all__ = ['ISolverCore']
+__all__ = ['IIntegrator']

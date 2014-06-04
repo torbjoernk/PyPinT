@@ -3,21 +3,21 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
-from pypint.integrators.sdc.sdc_solver_core import SdcSolverCore
+from pypint.integrators.sdc.sdc_integrator import SdcIntegrator
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.problems import IProblem
 from pypint.problems.has_direct_implicit_mixin import problem_has_direct_implicit
 from pypint.utilities import assert_is_instance, assert_named_argument
 
 
-class ImplicitSdcCore(SdcSolverCore):
+class ImplicitSdc(SdcIntegrator):
     """Implicit SDC Core
     """
 
     name = "Implicit SDC"
 
     def __init__(self):
-        super(ImplicitSdcCore, self).__init__()
+        super(ImplicitSdc, self).__init__()
 
     def run(self, state, **kwargs):
         """Implicit Euler step method.
@@ -31,7 +31,7 @@ class ImplicitSdcCore(SdcSolverCore):
         ----------
         solver_state : :py:class:`.SdcSolverState`
         """
-        super(ImplicitSdcCore, self).run(state, **kwargs)
+        super(ImplicitSdc, self).run(state, **kwargs)
 
         assert_is_instance(state, SdcSolverState, descriptor="State", checking_obj=self)
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
@@ -73,4 +73,4 @@ class ImplicitSdcCore(SdcSolverCore):
             state.current_step.value = _sol[0]
 
 
-__all__ = ['ImplicitSdcCore']
+__all__ = ['ImplicitSdc']

@@ -19,10 +19,10 @@ import matplotlib.cm as cm
 
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
+from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
 from pypint.communicators import ForwardSendingMessaging
 from pypint.solvers.ml_sdc import MlSdc
-from pypint.integrators.sdc import SemiImplicitMlSdcCore
+from pypint.integrators.sdc import SemiImplicitMlSdc
 from pypint.utilities.threshold_check import ThresholdCheck
 from examples.problems.lambda_u import LambdaU
 
@@ -70,7 +70,7 @@ def run_problem(real, imag, max_iter, num_steps, num_nodes, criteria, task, num_
 
     solver.init(problem=problem, ml_provider=ml_provider, threshold=check)
     try:
-        solution = solver.run(SemiImplicitMlSdcCore, dt=(problem.time_end - problem.time_start))
+        solution = solver.run(SemiImplicitMlSdc, dt=(problem.time_end - problem.time_start))
         return int(solution[-1].used_iterations)
         # print("####======> %s -> %s" % (solution[-1].error(-1)[-1].value, linalg.norm(solution[-1].error(-1)[-1].value)))
         # return two_norm(solution[-1].error(-1)[-1].value)

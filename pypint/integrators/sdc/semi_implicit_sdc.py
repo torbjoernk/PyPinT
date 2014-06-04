@@ -3,21 +3,21 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
-from pypint.integrators.sdc.sdc_solver_core import SdcSolverCore
+from pypint.integrators.sdc.sdc_integrator import SdcIntegrator
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.problems import IProblem
 from pypint.problems.has_direct_implicit_mixin import problem_has_direct_implicit
 from pypint.utilities import assert_is_instance, assert_named_argument
 
 
-class SemiImplicitSdcCore(SdcSolverCore):
+class SemiImplicitSdc(SdcIntegrator):
     """Semi-Implicit SDC Core
     """
 
     name = "Semi-Implicit SDC"
 
     def __init__(self):
-        super(SemiImplicitSdcCore, self).__init__()
+        super(SemiImplicitSdc, self).__init__()
 
     def run(self, state, **kwargs):
         """Semi-Implicit Euler step method.
@@ -37,7 +37,7 @@ class SemiImplicitSdcCore(SdcSolverCore):
         -----
         This step method requires the given problem to provide partial evaluation of the right-hand side.
         """
-        super(SemiImplicitSdcCore, self).run(state, **kwargs)
+        super(SemiImplicitSdc, self).run(state, **kwargs)
 
         assert_is_instance(state, SdcSolverState, descriptor="State", checking_obj=self)
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
@@ -87,4 +87,4 @@ class SemiImplicitSdcCore(SdcSolverCore):
             state.current_step.value = _sol[0]
 
 
-__all__ = ['SemiImplicitSdcCore']
+__all__ = ['SemiImplicitSdc']

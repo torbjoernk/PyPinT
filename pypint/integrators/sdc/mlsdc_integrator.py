@@ -2,7 +2,7 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.integrators.i_solver_core import ISolverCore
+from pypint.integrators.i_integrator import IIntegrator
 from pypint.solvers.states.mlsdc_solver_state import MlSdcStepState
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
 from pypint.problems import IProblem
@@ -10,7 +10,7 @@ from pypint.solvers.diagnosis import Error, Residual
 from pypint.utilities import assert_named_argument, assert_is_instance
 
 
-class MlSdcSolverCore(ISolverCore):
+class MlSdcIntegrator(IIntegrator):
     """Provides the Step-Method-Core for :py:class:`.MlSdc` solver.
 
     This is to be used as a Mixin for the :py:class:`.MlSdc` solver to provide the core step-methods such as the
@@ -30,14 +30,14 @@ class MlSdcSolverCore(ISolverCore):
     name = 'MLSDC Solver Core'
 
     def __init__(self):
-        super(MlSdcSolverCore, self).__init__()
+        super(MlSdcIntegrator, self).__init__()
 
     def run(self, state, **kwargs):
-        super(MlSdcSolverCore, self).run(state, **kwargs)
+        super(MlSdcIntegrator, self).run(state, **kwargs)
 
     def compute_residual(self, state, **kwargs):
         # LOG.debug("computing residual")
-        super(MlSdcSolverCore, self).compute_residual(state, **kwargs)
+        super(MlSdcIntegrator, self).compute_residual(state, **kwargs)
         _step = kwargs['step'] if 'step' in kwargs else state.current_level.current_step
         if _step.has_fas_correction():
             _step.solution.residual = Residual(
@@ -63,7 +63,7 @@ class MlSdcSolverCore(ISolverCore):
             #              _step.value))
 
     def compute_error(self, state, step_index=None, **kwargs):
-        super(MlSdcSolverCore, self).compute_error(state, **kwargs)
+        super(MlSdcIntegrator, self).compute_error(state, **kwargs)
 
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
 
@@ -109,4 +109,4 @@ class MlSdcSolverCore(ISolverCore):
             return state.initial
 
 
-__all__ = ['MlSdcSolverCore']
+__all__ = ['MlSdcIntegrator']

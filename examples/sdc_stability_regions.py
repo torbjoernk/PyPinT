@@ -20,7 +20,7 @@ import matplotlib.cm as cm
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.solvers.parallel_sdc import ParallelSdc
-from pypint.integrators.sdc import SemiImplicitSdcCore
+from pypint.integrators.sdc import SemiImplicitSdc
 from pypint.utilities.threshold_check import ThresholdCheck
 from examples.problems.lambda_u import LambdaU
 
@@ -49,7 +49,7 @@ def run_problem(real, imag, max_iter, num_steps, num_nodes, criteria, task, num_
 
     solver.init(integrator=SdcQuadrature, problem=problem, threshold=check, num_time_steps=num_steps, num_nodes=num_nodes)
     try:
-        solution = solver.run(SemiImplicitSdcCore, dt=(problem.time_end - problem.time_start))
+        solution = solver.run(SemiImplicitSdc, dt=(problem.time_end - problem.time_start))
         return int(solution[-1].used_iterations)
     except RuntimeError:
         return max_iter + 1

@@ -3,20 +3,20 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
-from pypint.integrators.sdc.sdc_solver_core import SdcSolverCore
+from pypint.integrators.sdc.sdc_integrator import SdcIntegrator
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.problems import IProblem
 from pypint.utilities import assert_is_instance, assert_named_argument
 
 
-class ExplicitSdcCore(SdcSolverCore):
+class ExplicitSdc(SdcIntegrator):
     """Explicit SDC Core
     """
 
     name = "Explicit SDC"
 
     def __init__(self):
-        super(ExplicitSdcCore, self).__init__()
+        super(ExplicitSdc, self).__init__()
 
     def run(self, state, **kwargs):
         """Explicit Euler step method.
@@ -30,7 +30,7 @@ class ExplicitSdcCore(SdcSolverCore):
         ----------
         solver_state : :py:class:`.SdcSolverState`
         """
-        super(ExplicitSdcCore, self).run(state, **kwargs)
+        super(ExplicitSdc, self).run(state, **kwargs)
 
         assert_is_instance(state, SdcSolverState, descriptor="State", checking_obj=self)
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
@@ -56,4 +56,4 @@ class ExplicitSdcCore(SdcSolverCore):
              + state.current_step.integral)
 
 
-__all__ = ['ExplicitSdcCore']
+__all__ = ['ExplicitSdc']

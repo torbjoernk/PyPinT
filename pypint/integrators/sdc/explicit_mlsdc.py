@@ -4,21 +4,21 @@
 """
 import numpy as np
 
-from pypint.integrators.sdc.mlsdc_solver_core import MlSdcSolverCore
+from pypint.integrators.sdc.mlsdc_integrator import MlSdcIntegrator
 from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.problems import IProblem
 from pypint.utilities import assert_is_instance, assert_named_argument
 from pypint.utilities.logging import LOG
 
 
-class ExplicitMlSdcCore(MlSdcSolverCore):
+class ExplicitMlSdc(MlSdcIntegrator):
     """Explicit MLSDC Core
     """
 
     name = "Explicit MLSDC"
 
     def __init__(self):
-        super(ExplicitMlSdcCore, self).__init__()
+        super(ExplicitMlSdc, self).__init__()
 
     def run(self, state, **kwargs):
         """Explicit Euler step method.
@@ -32,7 +32,7 @@ class ExplicitMlSdcCore(MlSdcSolverCore):
         ----------
         solver_state : :py:class:`.MlSdcSolverState`
         """
-        super(ExplicitMlSdcCore, self).run(state, **kwargs)
+        super(ExplicitMlSdc, self).run(state, **kwargs)
 
         assert_is_instance(state, MlSdcSolverState, descriptor="State", checking_obj=self)
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
@@ -74,4 +74,4 @@ class ExplicitMlSdcCore(MlSdcSolverCore):
         #            _previous_iteration_previous_step.rhs, state.current_step.integral, _fas))
 
 
-__all__ = ['ExplicitMlSdcCore']
+__all__ = ['ExplicitMlSdc']

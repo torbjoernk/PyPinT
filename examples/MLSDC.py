@@ -3,7 +3,7 @@ from warnings import simplefilter
 simplefilter('always')
 
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.multi_level_providers.level_transition_providers.time_transition_provider import TimeTransitionProvider
+from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 
 base_integrator = SdcQuadrature()
@@ -49,7 +49,7 @@ comm.write_buffer(tag=(ml_provider.num_levels - 1), value=problem.initial_value,
 
 mlsdc.init(problem=problem, ml_provider=ml_provider)
 
-from pypint.integrators.sdc import SemiImplicitMlSdcCore
-mlsdc.run(SemiImplicitMlSdcCore, dt=1.0)
+from pypint.integrators.sdc import SemiImplicitMlSdc
+mlsdc.run(SemiImplicitMlSdc, dt=1.0)
 
 print("RHS Evaluations: %d" % problem.rhs_evaluations)

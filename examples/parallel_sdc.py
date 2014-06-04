@@ -14,7 +14,7 @@ from examples.problems.lambda_u import LambdaU
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
-from pypint.integrators.sdc import SemiImplicitSdcCore
+from pypint.integrators.sdc import SemiImplicitSdc
 from pypint.utilities.sdc_solver_factory import sdc_solver_factory
 from pypint.utilities.threshold_check import ThresholdCheck
 
@@ -61,7 +61,7 @@ def solve_parallel_two(prob, _core):
     solver2.run(core=_core, dt=0.25)
 
 for prob in problems:
-    for core in [SemiImplicitSdcCore]:
+    for core in [SemiImplicitSdc]:
         solve_with_factory(prob, core, 1, 1)
         print("RHS Evaluations: %d" % prob.rhs_evaluations)
         del prob.rhs_evaluations

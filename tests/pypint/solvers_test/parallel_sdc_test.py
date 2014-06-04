@@ -6,7 +6,7 @@ from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 from pypint.solvers.parallel_sdc import ParallelSdc
 from pypint.communicators.forward_sending_messaging import ForwardSendingMessaging
 from pypint.utilities.threshold_check import ThresholdCheck
-from pypint.integrators.sdc import ExplicitSdcCore, ImplicitSdcCore, SemiImplicitSdcCore
+from pypint.integrators.sdc import ExplicitSdc, ImplicitSdc, SemiImplicitSdc
 from examples.problems.lambda_u import LambdaU
 from examples.problems.constant import Constant
 
@@ -85,7 +85,7 @@ def test_constant_minus_one_function_with_explicit_sdc():
     for _num_time_steps in _expected_iterations.keys():
         for _dt in _expected_iterations[_num_time_steps].keys():
             for _num_nodes in _expected_iterations[_num_time_steps][_dt].keys():
-                yield _constant_minus_one_function, ExplicitSdcCore, \
+                yield _constant_minus_one_function, ExplicitSdc, \
                     _num_time_steps, _dt, _num_nodes, _expected_iterations[_num_time_steps][_dt][_num_nodes]
 
 
@@ -124,7 +124,7 @@ def test_constant_minus_one_function_with_implicit_sdc():
     for _num_time_steps in _expected_iterations.keys():
         for _dt in _expected_iterations[_num_time_steps].keys():
             for _num_nodes in _expected_iterations[_num_time_steps][_dt].keys():
-                yield _constant_minus_one_function, ImplicitSdcCore, \
+                yield _constant_minus_one_function, ImplicitSdc, \
                     _num_time_steps, _dt, _num_nodes, _expected_iterations[_num_time_steps][_dt][_num_nodes]
 
 
@@ -163,7 +163,7 @@ def test_constant_minus_one_function_with_semi_implicit_sdc():
     for _num_time_steps in _expected_iterations.keys():
         for _dt in _expected_iterations[_num_time_steps].keys():
             for _num_nodes in _expected_iterations[_num_time_steps][_dt].keys():
-                yield _constant_minus_one_function, SemiImplicitSdcCore, \
+                yield _constant_minus_one_function, SemiImplicitSdc, \
                     _num_time_steps, _dt, _num_nodes, _expected_iterations[_num_time_steps][_dt][_num_nodes]
 
 
@@ -202,7 +202,7 @@ def test_lambda_u_with_explicit_sdc():
     for _num_time_steps in _expected_iterations.keys():
         for _dt in _expected_iterations[_num_time_steps].keys():
             for _num_nodes in _expected_iterations[_num_time_steps][_dt].keys():
-                yield _lambda_u_function, ExplicitSdcCore, \
+                yield _lambda_u_function, ExplicitSdc, \
                     _num_time_steps, _dt, _num_nodes, _expected_iterations[_num_time_steps][_dt][_num_nodes]
 
 
@@ -241,7 +241,7 @@ def test_lambda_u_with_implicit_sdc():
     for _num_time_steps in _expected_iterations.keys():
         for _dt in _expected_iterations[_num_time_steps].keys():
             for _num_nodes in _expected_iterations[_num_time_steps][_dt].keys():
-                yield _lambda_u_function, ImplicitSdcCore, \
+                yield _lambda_u_function, ImplicitSdc, \
                     _num_time_steps, _dt, _num_nodes, _expected_iterations[_num_time_steps][_dt][_num_nodes]
 
 
@@ -280,7 +280,7 @@ def test_lambda_u_with_semi_implicit_sdc():
     for _num_time_steps in _expected_iterations.keys():
         for _dt in _expected_iterations[_num_time_steps].keys():
             for _num_nodes in _expected_iterations[_num_time_steps][_dt].keys():
-                yield _lambda_u_function, SemiImplicitSdcCore, \
+                yield _lambda_u_function, SemiImplicitSdc, \
                     _num_time_steps, _dt, _num_nodes, _expected_iterations[_num_time_steps][_dt][_num_nodes]
 
 
@@ -291,7 +291,7 @@ class SdcTest(NumpyAwareTestCase):
 
     def test_semi_implicit_with_multi_dimensional(self):
         problem = Constant(constant=-1.0, shift=1.0, dim=(2, 3, 1))
-        _run_sdc_with_problem(problem, SemiImplicitSdcCore, 1, 1.0, 3, 2, PRECISION)
+        _run_sdc_with_problem(problem, SemiImplicitSdc, 1, 1.0, 3, 2, PRECISION)
 
 
 if __name__ == "__main__":

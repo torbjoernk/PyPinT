@@ -6,7 +6,7 @@ import numpy as np
 
 from pypint.problems import IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin
 from pypint.utilities import assert_condition, assert_is_instance, assert_named_argument
-from pypint.integrators.sdc import ImplicitSdcCore, ImplicitMlSdcCore, SemiImplicitMlSdcCore
+from pypint.integrators.sdc import ImplicitSdc, ImplicitMlSdc, SemiImplicitMlSdc
 
 
 class LambdaU(IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixin):
@@ -104,8 +104,8 @@ class LambdaU(IInitialValueProblem, HasExactSolutionMixin, HasDirectImplicitMixi
             if 'fas' in kwargs and kwargs['fas'] is not None else 0.0
 
         if 'core' in kwargs \
-                and (isinstance(kwargs['core'], (ImplicitSdcCore, ImplicitMlSdcCore))
-                     or (isinstance(self.lmbda, complex) and isinstance(kwargs['core'], SemiImplicitMlSdcCore))):
+                and (isinstance(kwargs['core'], (ImplicitSdc, ImplicitMlSdc))
+                     or (isinstance(self.lmbda, complex) and isinstance(kwargs['core'], SemiImplicitMlSdc))):
             _new = (_phis[2] - _dn * self.lmbda * _phis[1] + _int + _fas) / (1 - self.lmbda * _dn)
             # LOG.debug("Implicit MLSDC Step:\n  %s = (%s - %s * %s * %s + %s + %s) / (1 - %s * %s)"
             #           % (_new, _phis[2], _dn, self.lmbda, _phis[1], _int, _fas, self.lmbda, _dn))
