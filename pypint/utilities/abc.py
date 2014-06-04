@@ -8,6 +8,16 @@ from copy import deepcopy
 
 
 class Comparable(Hashable, metaclass=ABCMeta):
+    """Abstract Base Class for Comparable Types
+
+    Deriving from this provides overloads of the rich comparison operators (``==``, ``!=``, ``>``, ``>=``, ``<`` and
+    ``<=``).
+    Only :py:meth:`.__eq__` and :py:meth:`.__lt__` must be implemented. The other have useful standard implementations.
+
+    :py:class:`.Comparable` is derived from :py:class:`collections.abc.Hashable` because the equality operator is
+    overloaded.
+    Thus, implementations of :py:class:`.Comparable` must also define the :py:class:`.__hash__` method.
+    """
 
     __slots__ = ()
 
@@ -15,13 +25,11 @@ class Comparable(Hashable, metaclass=ABCMeta):
     def __eq__(self, other):
         if not isinstance(other, Comparable):
             return NotImplemented
-        return False
 
     @abstractmethod
     def __lt__(self, other):
         if not isinstance(other, Comparable):
             return NotImplemented
-        return False
 
     def __le__(self, other):
         if not isinstance(other, Comparable):
@@ -60,6 +68,8 @@ class Comparable(Hashable, metaclass=ABCMeta):
 
 
 class Copyable(metaclass=ABCMeta):
+    """Abstract Base Class providing shallow coppies of derived types
+    """
 
     __slots__ = ()
 
@@ -77,6 +87,8 @@ class Copyable(metaclass=ABCMeta):
 
 
 class Deepcopyable(Copyable, metaclass=ABCMeta):
+    """Abstract Base Class providing shallow and deep coppies of derived types
+    """
 
     __slots__ = ()
 

@@ -5,7 +5,7 @@
 import numpy as np
 
 from pypint.utilities.data_structures.abstract_spatial_object import AbstractSpatialObject
-from pypint.utilities import assert_is_instance, assert_is_in
+from pypint.utilities import assert_condition, assert_is_in
 
 
 class Scalar1D(AbstractSpatialObject):
@@ -27,16 +27,23 @@ class Scalar1D(AbstractSpatialObject):
 
     @AbstractSpatialObject.dtype.setter
     def dtype(self, dtype):
-        super(Scalar1D, self).dtype(dtype)
-        assert_is_in(dtype.kind, ['i', 'u', 'f', 'c'], elem_desc="Numeric Type Kind", list_desc='Valid Type Kinds',
+        super(self.__class__, self.__class__).dtype.fset(self, dtype)
+        assert_is_in(self.dtype.kind, ['i', 'u', 'f', 'c'],
+                     elem_desc="Numeric Type Kind", list_desc='Valid Type Kinds',
                      checking_obj=self)
 
     def set(self, value):
-        assert_is_instance(value, self.dtype.type, descriptor="Value", checking_obj=self)
+        super(Scalar1D, self).set(value)
+        assert_condition(np.isscalar(value) and (np.isreal(value) or np.iscomplex(value)),
+                         ValueError, message="Value must be a scalar numeric type: NOT %s" % type(value),
+                         checking_obj=self)
+        if not isinstance(value, self.dtype.type):
+            value = self.dtype.type(value)
         self._value = value
 
     @property
     def norm(self):
+        super(self.__class__, self.__class__).norm.fget(self)
         return self.value
 
     def lines_for_log(self):
@@ -55,14 +62,14 @@ class Scalar1D(AbstractSpatialObject):
         """
         if isinstance(value, Scalar1D) and value.dtype.isbuiltin:
             return value.value
-        elif np.isreal(value) or np.iscomplex(value):
+        elif np.isscalar(value) and (np.isreal(value) or np.iscomplex(value)):
             return value
         else:
             return NotImplemented
 
     def __str__(self):
         _str = super(Scalar1D, self).__str__()[0:-1]
-        _str += ", value=%s" % self.value
+        _str += ", value=%s)" % self.value
         return _str
 
     def __repr__(self):
@@ -71,54 +78,43 @@ class Scalar1D(AbstractSpatialObject):
         return _repr
 
     def __add__(self, other):
+        super(Scalar1D, self).__add__(other)
         return Scalar1D(value=(self.value + self._get_scalar_value(other)), dtype=self.dtype)
 
     def __iadd__(self, other):
+        super(Scalar1D, self).__iadd__(other)
         self._value += self._get_scalar_value(other)
         return self
 
     def __sub__(self, other):
+        super(Scalar1D, self).__sub__(other)
         return Scalar1D(value=(self.value - self._get_scalar_value(other)), dtype=self.dtype)
 
     def __isub__(self, other):
+        super(Scalar1D, self).__isub__(other)
         self._value -= self._get_scalar_value(other)
         return self
 
     def __mul__(self, other):
-        if not (np.isreal(other) or np.iscomplex(other)):
+        super(Scalar1D, self).__mul__(other)
+        if not (np.isscalar(other) and (np.isreal(other) or np.iscomplex(other))):
             return NotImplemented
         return Scalar1D(value=(self.value * other), dtype=self.dtype)
 
     def __imul__(self, other):
-        if not (np.isreal(other) or np.iscomplex(other)):
+        super(Scalar1D, self).__imul__(other)
+        if not (np.isscalar(other) and (np.isreal(other) or np.iscomplex(other))):
             return NotImplemented
         self._value *= other
         return self
 
     def __pos__(self):
+        super(Scalar1D, self).__pos__()
         return Scalar1D(value=+self.value, dtype=self.dtype)
 
     def __neg__(self):
+        super(Scalar1D, self).__neg__()
         return Scalar1D(value=-self.value, dtype=self.dtype)
-
-    def __eq__(self, other):
-        if isinstance(other, Scalar1D):
-            return self.value == other.value
-        elif np.isreal(other) or np.iscomplex(other):
-            return self.value == other
-        else:
-            return NotImplemented
-
-    def __lt__(self, other):
-        if isinstance(other, Scalar1D):
-            return self.value < other.value
-        elif np.isreal(other) or np.iscomplex(other):
-            return self.value < other
-        else:
-            return NotImplemented
-
-    def __hash__(self):
-        return hash(self.value) ^ hash(self.dtype)
 
 
 __all__ = ['Scalar1D']
