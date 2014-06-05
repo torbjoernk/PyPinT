@@ -4,9 +4,9 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 .. moduleauthor:: Dieter Moser <d.moser@fz-juelich.de>
 """
-from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.utilities.quadrature.node_providers.gauss_legendre_nodes import GaussLegendreNodes
-from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.nodes.gauss_legendre_nodes import GaussLegendreNodes
+from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
 
 
 QUADRATURE_PRESETS = {}
@@ -28,7 +28,7 @@ Examples
 QUADRATURE_PRESETS["Gauss-Lobatto"] = {
     "nodes_type": GaussLobattoNodes,
     "weights_function": {
-        "class": PolynomialWeightFunction,
+        "type": PolynomialWeights,
         "coeffs": [1.0]
     },
     "num_nodes": 3
@@ -38,8 +38,10 @@ QUADRATURE_PRESETS["Gauss-Lobatto"] = {
 QUADRATURE_PRESETS["Gauss-Legendre"] = {
     "nodes_type": GaussLegendreNodes,
     "weights_function": {
-        "class": PolynomialWeightFunction,
+        "type": PolynomialWeights,
         "coeffs": [1.0]
     },
     "num_nodes": 3
 }
+
+__all__ = ['QUADRATURE_PRESETS']

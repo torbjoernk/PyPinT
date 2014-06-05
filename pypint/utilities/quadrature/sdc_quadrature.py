@@ -1,33 +1,30 @@
 # coding=utf-8
 """
-
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from copy import deepcopy
-
 import numpy as np
 
 from pypint.utilities.quadrature.quadrature_base import QuadratureBase
-from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
-from pypint.utilities import assert_is_instance, assert_condition
+from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
+from pypint.utilities.assertions import assert_is_instance, assert_condition
 from pypint.utilities.logging import LOG
 
 
 class SdcQuadrature(QuadratureBase):
     """Integral part of the SDC algorithm.
     """
-    def __init__(self):
-        super(SdcQuadrature, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(SdcQuadrature, self).__init__(*args, **kwargs)
         self._smat = np.zeros(0)
         self._qmat = np.zeros(0)
 
-    def init(self, nodes_type=GaussLobattoNodes, num_nodes=3, weights_function=PolynomialWeightFunction, interval=None):
+    def init(self, *args, **kwargs):
         """Initialize SDC Integrator
 
         Parameters
         ----------
-        nodes_type : :py:class:`.INodes`
+        nodes_type : :py:class:`.AbstractNodes`
             type of the nodes
             (defaults to :py:class:`.GaussLobattoNodes`)
 
@@ -35,18 +32,24 @@ class SdcQuadrature(QuadratureBase):
             number of nodes
             (defaults to 3)
 
-        weights_function : :py:class:`.IWeightFunction`
+        weights_function : :py:class:`.AbstractWeights`
             type of the weights function
-            (defaults to :py:class:`.PolynomialWeightFunction`)
+            (defaults to :py:class:`.PolynomialWeights`)
 
         interval : :py:class:`numpy.ndarray` or :py:class:`None`
             interval for the nodes
-            (see :py:meth:`.INodes.transform` for possible values)
+            (see :py:meth:`.AbstractNodes.transform` for possible values)
         """
-        super(SdcQuadrature, self).init(nodes_type, num_nodes, weights_function, interval)
+        if 'nodes_type' not in kwargs:
+            kwargs['nodes_type'] = GaussLobattoNodes
+        if 'num_nodes' not in kwargs:
+            kwargs['num_nodes'] = 3
+        if 'weights_function' not in kwargs:
+            kwargs['weights_function'] = PolynomialWeights
+        super(SdcQuadrature, self).init(*args, **kwargs)
         self._construct_s_matrix()
 
-    def evaluate(self, data, **kwargs):
+    def apply(self, data, **kwargs):
         """Computes the integral until the given node from the previous one.
 
         For integration nodes :math:`\\tau_i`, :math:`i=1,\\dots,n` specifying :math:`\\tau_3` as ``target_node``
@@ -67,12 +70,12 @@ class SdcQuadrature(QuadratureBase):
         ----------
         target_node : :py:class:`int`
             *(optional)*
-            (1-based) index of the last node to integrate.
+            (0-based) index of the last node to integrate.
             In case it is not given, an integral over the full interval is assumed.
 
         from_node : :py:class:`int`
             *(optional)*
-            (1-based) index of the first node to integrate from.
+            (0-based) index of the first node to integrate from.
             *(defaults to ``0``)*
 
         Raises
@@ -84,46 +87,51 @@ class SdcQuadrature(QuadratureBase):
 
         See Also
         --------
-        :py:meth:`.QuadratureBase.evaluate` : overridden method
+        :py:meth:`.QuadratureBase.apply` : overridden method
         """
-        _target_index = self._qmat.shape[0] - 1
-        if 'target_node' in kwargs:
-            assert_is_instance(kwargs['target_node'], int, descriptor="Target Node Index", checking_obj=self)
-            _target_index = kwargs["target_node"]
+        _target_index = kwargs.get('target_node', self._qmat.shape[0] - 1)
+        assert_is_instance(_target_index, int, descriptor="Target Node Index", checking_obj=self)
 
-        _from_index = 0
-        if 'from_node' in kwargs:
-            assert_is_instance(kwargs['from_node'], int, descriptor="From Node Index", checking_obj=self)
-            _from_index = kwargs['from_node']
+        _from_index = kwargs.get('from_node', 0)
+        assert_is_instance(_from_index, int, descriptor="From Node Index", checking_obj=self)
 
         assert_condition(_from_index < _target_index,
                          ValueError,
                          message="Integration must cover at least two nodes: %d !< %d" % (_from_index, _target_index),
                          checking_obj=self)
 
-        super(SdcQuadrature, self).evaluate(data,
-                                            time_start=self.nodes[_from_index],
-                                            time_end=self.nodes[_target_index])
+        super(SdcQuadrature, self).apply(data)
+
+        _integral = data[0].__class__()
+
         if _from_index != 0:
             assert_condition(_target_index <= self._smat.shape[0],
-                             ValueError, message="Target Node Index {:d} too large. Must be within [{:d},{:d})"
-                                                 .format(_target_index, 1, self._smat.shape[0]),
+                             ValueError, message="Target Node Index %d too large. Must be within [%d, %d)"
+                                                 % (_target_index, 1, self._smat.shape[0]),
                              checking_obj=self)
-            # LOG.debug("Integrating from node {:d} to {:d} with S-Mat row {:d} on interval {}."
-            #           .format(_from_index, _target_index, _target_index - 1, self.nodes_type.interval))
-            # LOG.debug("  data:    %s" % data.flatten())
-            # LOG.debug("  weights: %s" % self._smat[_target_index - 1])
-            return np.tensordot(self._smat[_target_index - 1], data, axes=([0], [0]))
+            if _from_index < _target_index - 1:
+                for _subfrom in range(_from_index, _target_index):
+                    _integral += self.apply(data, from_node=_subfrom, target_node=_subfrom + 1)
+            else:
+                # LOG.debug("Integrating from node {:d} to {:d} with S-Mat row {:d} on interval {}."
+                #           .format(_from_index, _target_index, _target_index - 1, self.nodes_type.interval))
+                # LOG.debug("  data:    %s" % data.flatten())
+                # LOG.debug("  weights: %s" % self._smat[_target_index - 1])
+                for _node_index in range(self.num_nodes):
+                    _integral += data[_node_index] * self._smat[_target_index - 1][_node_index]
         else:
             assert_condition(_target_index < self._qmat.shape[0],
-                             ValueError, message="Target Node Index {:d} too large. Must be within [{:d}, {:d}]"
-                                                 .format(_target_index, 1, self._qmat.shape[0]),
+                             ValueError, message="Target Node Index %d too large. Must be within [%d, %d]"
+                                                 % (_target_index, 1, self._qmat.shape[0]),
                              checking_obj=self)
             # LOG.debug("Integrating up to node {:d} with Q-Mat row {:d} on interval {}."
             #           .format(_target_index, _target_index, self.nodes_type.interval))
             # LOG.debug("  data:    %s" % data.flatten())
             # LOG.debug("  weights: %s" % self._qmat[_target_index])
-            return np.tensordot(self._qmat[_target_index], data, axes=([0], [0]))
+            for _node_index in range(self.num_nodes):
+                _integral += data[_node_index] * self._qmat[_target_index][_node_index]
+
+        return _integral
 
     def transform_interval(self, interval):
         """Transforms nodes onto new interval
@@ -143,9 +151,6 @@ class SdcQuadrature(QuadratureBase):
         else:
             LOG.debug("Cannot transform interval to None. Skipping.")
 
-        # LOG.debug("S-Matrix for interval %s:\n%s" % (interval, self._smat))
-        # LOG.debug("Q-Matrix for interval %s:\n%s" % (interval, self._qmat))
-
     def _construct_s_matrix(self):
         """Constructs integration :math:`S`-matrix
 
@@ -156,7 +161,7 @@ class SdcQuadrature(QuadratureBase):
                            message="Other than Gauss-Lobatto integration nodes not yet supported.", checking_obj=self)
         self._smat = np.zeros((self.nodes.size - 1, self.nodes.size), dtype=float)
         for i in range(1, self.nodes.size):
-            self.weights_function.evaluate(self.nodes, np.array([self.nodes[i - 1], self.nodes[i]]))
+            self.weights_function.compute_weights(self.nodes_type, np.array([self.nodes[i - 1], self.nodes[i]]))
             self._smat[i - 1] = self.weights_function.weights
 
         # compute Q-matrix
@@ -173,18 +178,3 @@ class SdcQuadrature(QuadratureBase):
         self._qmat = np.zeros((self.nodes.size, self.nodes.size), dtype=float)
         for i in range(0, self._smat.shape[0]):
             self._qmat[i + 1] = self._qmat[i] + self._smat[i]
-
-    def __str__(self):
-        return "SdcQuadrature<0x%x>(nodes=%s, weights=%s)" % (id(self), self.nodes_type, self.weights_function)
-
-    def __copy__(self):
-        copy = self.__class__.__new__(self.__class__)
-        copy.__dict__.update(self.__dict__)
-        return copy
-
-    def __deepcopy__(self, memo):
-        copy = self.__class__.__new__(self.__class__)
-        memo[id(self)] = copy
-        for item, value in self.__dict__.items():
-            setattr(copy, item, deepcopy(value, memo))
-        return copy

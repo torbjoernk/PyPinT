@@ -24,7 +24,7 @@ Examples
 import inspect
 from collections import Callable
 
-from pypint.utilities.tracing import checking_obj_name, class_name, func_name
+from pypint.utilities.tracing import class_name
 from pypint.utilities.logging import LOG
 
 
@@ -49,9 +49,10 @@ def assert_condition(condition, exception_type, message, checking_obj=None):
         if ``condition`` evaluates to :py:class:`False`
     """
     if not condition:
-        LOG.critical(func_name(checking_obj) + message)
-        raise exception_type("{:s}.{:s}(): {:s}"
-                             .format(checking_obj_name(checking_obj), inspect.stack()[1][3], message))
+        _calling_func = inspect.stack()[1][3]
+        _prefix = "%s." % class_name(checking_obj) if checking_obj is not None else ''
+        LOG.critical("%s%s(): %s" % (_prefix, _calling_func, message))
+        raise exception_type("%s%s(): %s" % (_prefix, _calling_func, message))
 
 
 def assert_is_callable(obj, message=None, descriptor=None, checking_obj=None):
@@ -76,11 +77,13 @@ def assert_is_callable(obj, message=None, descriptor=None, checking_obj=None):
     if not isinstance(obj, Callable):
         if not message:
             if descriptor:
-                message = "{:s} must be callable.".format(descriptor)
+                message = "%s must be callable." % descriptor
             else:
-                message = "Required a callable: NOT {:s}.".format(class_name(obj))
-        LOG.critical(func_name(checking_obj) + message)
-        raise ValueError("{:s}.{:s}(): {:s}".format(checking_obj_name(checking_obj), inspect.stack()[2][3], message))
+                message = "Required a callable: NOT %s." % class_name(obj)
+        _calling_func = inspect.stack()[1][3]
+        _prefix = "%s." % class_name(checking_obj) if checking_obj is not None else ''
+        LOG.critical("%s%s(): %s" % (_prefix, _calling_func, message))
+        raise ValueError("%s%s(): %s" % (_prefix, _calling_func, message))
 
 
 def assert_is_in(element, test_list, message=None, elem_desc=None, list_desc=None, checking_obj=None):
@@ -115,12 +118,12 @@ def assert_is_in(element, test_list, message=None, elem_desc=None, list_desc=Non
             if not list_desc:
                 list_desc = class_name(test_list)
             if not elem_desc:
-                elem_desc = "Element {:r}".format(element)
-            message = "{:s} is not in {:s}.".format(elem_desc, list_desc)
-        LOG.critical(func_name(checking_obj) + message)
-        LOG.debug(func_name(checking_obj) +
-                  "Elements in {:s}: {:s}".format(class_name(test_list), ', '.join(test_list)))
-        raise ValueError("{:s}.{:s}(): {:s}".format(checking_obj_name(checking_obj), inspect.stack()[2][3], message))
+                elem_desc = "Element %r" % element
+            message = "%s is not in %s." % (elem_desc, list_desc)
+        _calling_func = inspect.stack()[1][3]
+        _prefix = "%s." % class_name(checking_obj) if checking_obj is not None else ''
+        LOG.critical("%s%s(): %s" % (_prefix, _calling_func, message))
+        raise ValueError("%s%s(): %s" % (_prefix, _calling_func, message))
 
 
 def assert_is_instance(obj, instances, message=None, descriptor=None, checking_obj=None):
@@ -156,18 +159,20 @@ def assert_is_instance(obj, instances, message=None, descriptor=None, checking_o
 
             if descriptor:
                 if len(_instances_str) > 1:
-                    message = "{:s} must be one of {:s}: NOT {:s}"\
-                              .format(descriptor, ', '.join(_instances_str), class_name(obj))
+                    message = "%s must be one of %s: NOT %s." \
+                              % (descriptor, ', '.join(_instances_str), class_name(obj))
                 else:
-                    message = "{:s} must be a {:s}: NOT {:s}"\
-                              .format(descriptor, ', '.join(_instances_str), class_name(obj))
+                    message = "%s must be a %s: NOT %s." \
+                              % (descriptor, ', '.join(_instances_str), class_name(obj))
             else:
                 if len(_instances_str) > 1:
-                    message = "Required one of {:s}: NOT {:s}.".format(', '.join(_instances_str), class_name(obj))
+                    message = "Required one of %s: NOT %s." % (', '.join(_instances_str), class_name(obj))
                 else:
-                    message = "Required a {:s}: NOT {:s}.".format(', '.join(_instances_str), class_name(obj))
-        LOG.critical(func_name(checking_obj) + message)
-        raise ValueError("{:s}.{:s}(): {:s}".format(checking_obj_name(checking_obj), inspect.stack()[2][3], message))
+                    message = "Required a %s: NOT %s." % (', '.join(_instances_str), class_name(obj))
+        _calling_func = inspect.stack()[1][3]
+        _prefix = "%s." % class_name(checking_obj) if checking_obj is not None else ''
+        LOG.critical("%s%s(): %s" % (_prefix, _calling_func, message))
+        raise ValueError("%s%s(): %s" % (_prefix, _calling_func, message))
 
 
 def assert_is_key(key, dictionary, message=None, key_desc=None, dict_desc=None, checking_obj=None):
@@ -194,14 +199,16 @@ def assert_is_key(key, dictionary, message=None, key_desc=None, dict_desc=None, 
     """
     if key not in dictionary:
         if not message:
-            if not key_desc:
-                key_desc = "'{:s}'".format(key)
-            if not dict_desc:
+            if key_desc is None:
+                key_desc = "'%s'" % key
+            if dict_desc is None:
                 dict_desc = "given dict"
-            message = "{:s} is not a key in {:s}.".format(key_desc, dict_desc)
-        LOG.critical(func_name(checking_obj) + message)
-        LOG.debug(func_name(checking_obj) + "Keys in {:s}: {:s}".format(id(dictionary), ', '.join(dictionary.keys())))
-        raise ValueError("{:s}.{:s}(): {:s}".format(checking_obj_name(checking_obj), inspect.stack()[2][3], message))
+            message = "%s is not a key in %s." % (key_desc, dict_desc)
+        _calling_func = inspect.stack()[1][3]
+        _prefix = "%s." % class_name(checking_obj) if checking_obj is not None else ''
+        LOG.critical("%s%s(): %s" % (_prefix, _calling_func, message))
+        LOG.debug("%s%s(): Keys in %s: %s" % (_prefix, _calling_func, id(dictionary), ', '.join(dictionary.keys())))
+        raise ValueError("%s%s(): %s" % (_prefix, _calling_func, message))
 
 
 def assert_named_argument(name, kwargs, types=None, message=None, descriptor=None, checking_obj=None):
@@ -211,18 +218,21 @@ def assert_named_argument(name, kwargs, types=None, message=None, descriptor=Non
                 message = "%s ('%s') is a required argument." % (descriptor, name)
             else:
                 message = "'%s' is a required argument." % name
-        LOG.critical(func_name(checking_obj) + message)
-        LOG.debug(func_name(checking_obj) + "Named arguments were: %s" % ', '.join(kwargs.keys()))
-        raise ValueError("{:s}.{:s}(): {:s}".format(checking_obj_name(checking_obj), inspect.stack()[2][3], message))
+        _calling_func = inspect.stack()[1][3]
+        _prefix = "%s." % class_name(checking_obj) if checking_obj is not None else ''
+        LOG.critical("%s%s(): %s" % (_prefix, _calling_func, message))
+        LOG.debug("%s%s(): Named arguments were: %s" % (_prefix, _calling_func, ', '.join(kwargs.keys())))
+        raise ValueError("%s%s(): %s" % (_prefix, _calling_func, message))
 
     if types:
         assert_is_instance(kwargs[name], types, descriptor=descriptor, checking_obj=checking_obj)
 
+
 __all__ = [
     'assert_condition',
+    'assert_is_callable',
     'assert_is_in',
     'assert_is_instance',
-    'assert_is_callable',
     'assert_is_key',
     'assert_named_argument'
 ]
