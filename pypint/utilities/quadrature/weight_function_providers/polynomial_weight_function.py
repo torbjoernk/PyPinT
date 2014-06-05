@@ -1,16 +1,15 @@
 # coding=utf-8
 """
-
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 import numpy as np
 import numpy.polynomial.polynomial as pol
 
-from pypint.utilities.quadrature.weight_function_providers.i_weight_function import IWeightFunction
-from pypint.utilities import func_name, assert_is_instance, assert_condition
+from pypint.utilities.quadrature.weight_function_providers.abstract_weight_function import AbstractWeightFunction
+from pypint.utilities.assertions import assert_is_instance, assert_condition
 
 
-class PolynomialWeightFunction(IWeightFunction):
+class PolynomialWeightFunction(AbstractWeightFunction):
     """Provider for polynomial weight functions.
 
     Computes weights of given nodes based on a polynomial weight function of the form
@@ -19,51 +18,47 @@ class PolynomialWeightFunction(IWeightFunction):
 
     Examples
     --------
-    >>> import numpy
-    >>> nodes = numpy.array([-1.0, 0.0, 1.0])
+    >>> from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+    >>> nodes = GaussLobattoNodes(3)
     >>> # To compute the integration weights for a given set of nodes based
     >>> # on the constant weight function 1.0 use:
     >>> # create an instance
-    >>> polyWeights = PolynomialWeightFunction()
-    >>> # set the coefficients of the polynom
-    >>> polyWeights.init([1.0])
+    >>> polyWeights = PolynomialWeightFunction(1.0)
     >>> # compute the weights
-    >>> polyWeights.evaluate(nodes)
+    >>> polyWeights.compute_weights(nodes)
     >>> # access the weights
     >>> polyWeights.weights
     array([ 0.3333,  1.3333,  0.3333])
     """
 
-    def __init__(self):
-        super(PolynomialWeightFunction, self).__init__()
+    def __init__(self, *args, **kwargs):
+        """
+        Notes
+        -----
+        On successful instantiation, :py:meth:`.PolynomialWeightFunction.init` is called with the arguments given to
+        the constructor.
+        """
+        super(PolynomialWeightFunction, self).__init__(*args, **kwargs)
         self._coefficients = np.zeros(0)
+        self.init(*args, **kwargs)
 
-    def init(self, coeffs=[1.0], func=None):
+    def init(self, *args, **kwargs):
         """Sets and defines the weights function.
 
         Parameters
         ----------
         coeffs : :py:class:`numpy.ndarray` or :py:class:`list`
             Array of coefficients of the polynomial.
-        func : :py:class:`str`
-            Of format ``c0 + c1 x^1 + c2 x^2...``
-            String representation of the polynomial.
-
-        Notes
-        -----
-        Parsing of a string representation of the polynomial is not yet implemented.
-        Usage will lead to a `NotImplementedError` exception.
+            The coefficients can also be given as separate arguments.
         """
-        super(PolynomialWeightFunction, self).init(coeffs, func=None)
-        if func is not None and isinstance(func, str):
-            # TODO: implement parsing of polynomial function string
-            raise NotImplementedError(func_name(self) +
-                                      "Parsing of polynomial function as string not yet possible.")
-        elif coeffs is not None and \
-                (isinstance(coeffs, np.ndarray) or isinstance(coeffs, list)):
-            self.coefficients = np.array(coeffs)
+        super(PolynomialWeightFunction, self).init(*args, **kwargs)
+        if len(args) > 0:
+            _coeffs = list(args)
+        else:
+            _coeffs = kwargs.get('coeffs', [1.0])
+        self.coefficients = _coeffs
 
-    def evaluate(self, nodes, interval=None):
+    def compute_weights(self, nodes, interval=None):
         """Computes weights for stored polynomial and given nodes.
 
         The weights are calculated with help of the Lagrange polynomials
@@ -74,14 +69,14 @@ class PolynomialWeightFunction(IWeightFunction):
 
         See Also
         --------
-        :py:meth:`.IWeightFunction.evaluate` : overridden method
+        :py:meth:`.AbstractWeightFunction.compute_weights` : overridden method
         """
-        super(PolynomialWeightFunction, self).evaluate(nodes, interval)
+        super(PolynomialWeightFunction, self).compute_weights(nodes, interval)
 
         a = self._interval[0]
         b = self._interval[1]
 
-        n_nodes = nodes.size
+        n_nodes = nodes.num_nodes
         alpha = np.zeros(n_nodes)
 
         for j in range(n_nodes):
@@ -89,16 +84,14 @@ class PolynomialWeightFunction(IWeightFunction):
             selection.extend(list(range(j + 1, n_nodes)))
             poly = [1.0]
 
-            for ais in nodes[selection]:
+            for ais in nodes.nodes[selection]:
                 # builds Lagrange polynomial p_i
-                poly = pol.polymul(poly, [ais / (ais - nodes[j]), 1 / (nodes[j] - ais)])
+                poly = pol.polymul(poly, [ais / (ais - nodes.nodes[j]), 1 / (nodes.nodes[j] - ais)])
 
             # computes \int w(x)p_i dx
             poly = pol.polyint(pol.polymul(poly, self._coefficients))
             alpha[j] = pol.polyval(b, poly) - pol.polyval(a, poly)
 
-        #LOG.debug("Computed polynomial weights for nodes {:s} in {:s}."
-        #          .format(nodes, self._interval))
         del self._interval
         self._weights = alpha
 
@@ -126,12 +119,13 @@ class PolynomialWeightFunction(IWeightFunction):
         """
         assert_is_instance(power, int, descriptor="Power", checking_obj=self)
         assert_condition(power >= 0, ValueError,
-                         message="Power must be zero or positive: {:d}".format(power), checking_obj=self)
+                         message="Power must be zero or positive: NOT %d" % power, checking_obj=self)
 
-        if self._coefficients.size <= power + 1:
-            self._coefficients = np.resize(self._coefficients, (power + 1))
-
-        self._coefficients[power] = coefficient
+        _coeffs = self._coefficients.tolist()
+        while len(_coeffs) <= power:
+            _coeffs.append(0.0)
+        _coeffs[power] = coefficient
+        self.coefficients = _coeffs
 
     @property
     def coefficients(self):
@@ -158,13 +152,21 @@ class PolynomialWeightFunction(IWeightFunction):
 
     @coefficients.setter
     def coefficients(self, coefficients):
-        assert_is_instance(coefficients, np.ndarray, descriptor="Coefficients", checking_obj=self)
-        self._coefficients = coefficients
+        assert_is_instance(coefficients, (list, np.ndarray), descriptor="Coefficients", checking_obj=self)
+        self._coefficients = np.asarray(coefficients).reshape(-1)
 
-    def print_lines_for_log(self):
-        _lines = super(PolynomialWeightFunction, self).print_lines_for_log()
-        _lines['Coefficients'] = "{}".format(self.coefficients)
+    def lines_for_log(self):
+        _lines = super(PolynomialWeightFunction, self).lines_for_log()
+        _lines['Type'] = 'Polynomial'
+        _lines['Coefficients'] = "%s" % self.coefficients
         return _lines
 
     def __str__(self):
-        return "PolynomialWeightFunction<0x%x>(weights=%s)" % (id(self), self.weights)
+        _str = super(PolynomialWeightFunction, self).__str__()[0:-1]
+        _str += ", coeffs=%s)" % self.coefficients
+        return _str
+
+    def __repr__(self):
+        _str = super(PolynomialWeightFunction, self).__repr__()[0:-1]
+        _str += ", coeffs=%s>" % self.coefficients
+        return _str
