@@ -16,7 +16,7 @@ from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLeve
 from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
 from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
-from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
+from pypint.utilities.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
 from pypint.solvers.diagnosis.norms import supremum_norm
 from pypint.plugins.timers.timer_base import TimerBase

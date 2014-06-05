@@ -6,7 +6,7 @@ import unittest
 
 
 class StatesTests(unittest.TestSuite):
-    def __init__(self):
+    def setUp(self):
         pass
 
 

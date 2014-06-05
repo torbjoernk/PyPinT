@@ -4,7 +4,7 @@
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
 from pypint.integrators.sdc.sdc_integrator import SdcIntegrator
-from pypint.solvers.states.sdc_solver_state import SdcSolverState
+from pypint.utilities.states.sdc_solver_state import SdcSolverState
 from pypint.problems import IProblem
 from pypint.utilities import assert_is_instance, assert_named_argument
 

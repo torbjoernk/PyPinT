@@ -6,7 +6,7 @@
 from pypint.plugins.analyzers.i_analyzer import IAnalyzer
 from pypint.plugins.plotters.single_solution_plotter import SingleSolutionPlotter
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.solvers.states import ISolverState
+from pypint.utilities.states import ISolverState
 from pypint.utilities import assert_named_argument
 
 

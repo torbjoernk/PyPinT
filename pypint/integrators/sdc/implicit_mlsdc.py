@@ -5,7 +5,7 @@
 import numpy as np
 
 from pypint.integrators.sdc.mlsdc_integrator import MlSdcIntegrator
-from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
+from pypint.utilities.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.problems import IProblem
 from pypint.problems.has_direct_implicit_mixin import problem_has_direct_implicit
 from pypint.utilities import assert_is_instance, assert_named_argument

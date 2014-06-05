@@ -1,6 +1,5 @@
 # coding=utf-8
 """
-
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
 from copy import deepcopy

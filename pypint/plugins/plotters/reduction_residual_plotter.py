@@ -9,7 +9,7 @@ from matplotlib import is_interactive
 
 from pypint.plugins.plotters.i_plotter import IPlotter
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.solvers.states import ISolverState
+from pypint.utilities.states import ISolverState
 from pypint.solvers.diagnosis.norms import supremum_norm
 from pypint.utilities import assert_is_instance, assert_condition, assert_named_argument
 from pypint.utilities.logging import LOG

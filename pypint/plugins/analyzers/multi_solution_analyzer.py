@@ -8,7 +8,7 @@ import numpy as np
 from pypint.plugins.analyzers.i_analyzer import IAnalyzer
 from pypint.plugins.plotters.reduction_residual_plotter import ReductionResidualPlotter
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.solvers.states import ISolverState
+from pypint.utilities.states import ISolverState
 from pypint.utilities import assert_named_argument
 
 

@@ -2,19 +2,19 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-import numpy
 from unittest import TestCase
+
+import numpy
 from nose.tools import *
 
 from tests import NumpyAwareTestCase, assert_numpy_array_equal
-from pypint.solvers.states.i_solver_state import IStepState
-from pypint.solvers.states.i_solver_state import IStateIterator
-from pypint.solvers.states.i_solver_state import IStaticStateIterator
-from pypint.solvers.states.i_solver_state import ITimeStepState
-from pypint.solvers.states.i_solver_state import IIterationState
-from pypint.solvers.states.i_solver_state import ISolverState
+from pypint.utilities.states.i_solver_state import IStepState
+from pypint.utilities.states.i_solver_state import IStateIterator
+from pypint.utilities.states.i_solver_state import IStaticStateIterator
+from pypint.utilities.states.i_solver_state import ITimeStepState
+from pypint.utilities.states.i_solver_state import IIterationState
+from pypint.utilities.states.i_solver_state import ISolverState
 from pypint.solutions.data_storage import TrajectorySolutionData
-from pypint.solutions import IterativeSolution
 
 
 class IStepStateTest(TestCase):

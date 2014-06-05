@@ -16,13 +16,14 @@ from pypint.utilities.quadrature.quadrature_base import QuadratureBase
 from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
 from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
-from pypint.solvers.states.sdc_solver_state import SdcSolverState
+from pypint.utilities.states.sdc_solver_state import SdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
 from pypint.solvers.diagnosis.norms import supremum_norm
 from pypint.plugins.timers.timer_base import TimerBase
 from pypint.utilities.threshold_check import ThresholdCheck
 from pypint.utilities import assert_is_instance, assert_condition, func_name, assert_named_argument
 from pypint.utilities.logging import *
+
 
 
 

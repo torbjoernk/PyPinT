@@ -7,11 +7,10 @@ from copy import deepcopy
 
 import numpy as np
 
-from pypint.solvers.states.i_solver_state import IStepState, ISolverState, IStaticStateIterator
+from pypint.utilities.states.i_solver_state import IStepState, ISolverState, IStaticStateIterator
 from pypint.solutions.iterative_solution import IterativeSolution
 from pypint.solutions.data_storage.trajectory_solution_data import TrajectorySolutionData
 from pypint.utilities import assert_condition, class_name
-from pypint.utilities.logging import LOG
 
 
 class MlSdcStepState(IStepState):

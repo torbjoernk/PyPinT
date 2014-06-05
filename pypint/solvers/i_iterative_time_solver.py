@@ -3,7 +3,7 @@
 
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.solvers.states.i_solver_state import ISolverState
+from pypint.utilities.states.i_solver_state import ISolverState
 from pypint.integrators.i_integrator import IIntegrator
 from pypint.utilities.threshold_check import ThresholdCheck
 from pypint.utilities import assert_condition, assert_is_callable, class_name

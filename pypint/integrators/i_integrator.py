@@ -4,7 +4,7 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 from pypint.utilities import assert_is_instance
-from pypint.solvers.states.i_solver_state import ISolverState
+from pypint.utilities.states.i_solver_state import ISolverState
 
 
 class IIntegrator(object):

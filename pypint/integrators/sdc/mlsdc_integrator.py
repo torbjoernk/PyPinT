@@ -3,7 +3,7 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 from pypint.integrators.i_integrator import IIntegrator
-from pypint.solvers.states.mlsdc_solver_state import MlSdcStepState
+from pypint.utilities.states.mlsdc_solver_state import MlSdcStepState
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
 from pypint.problems import IProblem
 from pypint.solvers.diagnosis import Error, Residual
