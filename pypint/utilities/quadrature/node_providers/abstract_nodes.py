@@ -22,7 +22,10 @@ class AbstractNodes(Deepcopyable, metaclass=ABCMeta):
     """
 
     def __init__(self, *args, **kwargs):
-        _n_nodes = kwargs.get('n_nodes', 0)
+        if len(args) == 1:
+            _n_nodes = args[0]
+        else:
+            _n_nodes = kwargs.get('n_nodes', 0)
         self._nodes = np.zeros(_n_nodes)
         self._interval = np.zeros(2)
 

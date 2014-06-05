@@ -18,8 +18,7 @@ class GaussLobattoNodes(AbstractNodes):
     def __init__(self, *args, **kwargs):
         super(GaussLobattoNodes, self).__init__(*args, **kwargs)
         self._interval = GaussLobattoNodes.STANDARD_INTERVAL
-        if 'n_nodes' in kwargs:
-            self.init(kwargs['n_nodes'])
+        self.init(self.num_nodes)
 
     @AbstractNodes.name.getter
     def name(self):
