@@ -1,8 +1,8 @@
 # coding=utf-8
 import numpy
 
-from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
-from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
 from tests import NumpyAwareTestCase, assert_numpy_array_almost_equal
 
 GAUSS_LOBATTO_NODES = {

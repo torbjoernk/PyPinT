@@ -5,11 +5,11 @@
 import numpy as np
 import numpy.polynomial.polynomial as pol
 
-from pypint.utilities.quadrature.weight_function_providers.abstract_weight_function import AbstractWeightFunction
+from pypint.utilities.quadrature.weights.abstract_weights import AbstractWeights
 from pypint.utilities.assertions import assert_is_instance, assert_condition
 
 
-class PolynomialWeightFunction(AbstractWeightFunction):
+class PolynomialWeights(AbstractWeights):
     """Provider for polynomial weight functions.
 
     Computes weights of given nodes based on a polynomial weight function of the form
@@ -18,12 +18,12 @@ class PolynomialWeightFunction(AbstractWeightFunction):
 
     Examples
     --------
-    >>> from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+    >>> from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
     >>> nodes = GaussLobattoNodes(3)
     >>> # To compute the integration weights for a given set of nodes based
     >>> # on the constant weight function 1.0 use:
     >>> # create an instance
-    >>> polyWeights = PolynomialWeightFunction(1.0)
+    >>> polyWeights = PolynomialWeights(1.0)
     >>> # compute the weights
     >>> polyWeights.compute_weights(nodes)
     >>> # access the weights
@@ -35,10 +35,10 @@ class PolynomialWeightFunction(AbstractWeightFunction):
         """
         Notes
         -----
-        On successful instantiation, :py:meth:`.PolynomialWeightFunction.init` is called with the arguments given to
+        On successful instantiation, :py:meth:`.PolynomialWeights.init` is called with the arguments given to
         the constructor.
         """
-        super(PolynomialWeightFunction, self).__init__(*args, **kwargs)
+        super(PolynomialWeights, self).__init__(*args, **kwargs)
         self._coefficients = np.zeros(0)
         self.init(*args, **kwargs)
 
@@ -51,7 +51,7 @@ class PolynomialWeightFunction(AbstractWeightFunction):
             Array of coefficients of the polynomial.
             The coefficients can also be given as separate arguments.
         """
-        super(PolynomialWeightFunction, self).init(*args, **kwargs)
+        super(PolynomialWeights, self).init(*args, **kwargs)
         if len(args) > 0:
             _coeffs = list(args)
         else:
@@ -69,9 +69,9 @@ class PolynomialWeightFunction(AbstractWeightFunction):
 
         See Also
         --------
-        :py:meth:`.AbstractWeightFunction.compute_weights` : overridden method
+        :py:meth:`.AbstractWeights.compute_weights` : overridden method
         """
-        super(PolynomialWeightFunction, self).compute_weights(nodes, interval)
+        super(PolynomialWeights, self).compute_weights(nodes, interval)
 
         a = self._interval[0]
         b = self._interval[1]
@@ -111,7 +111,7 @@ class PolynomialWeightFunction(AbstractWeightFunction):
 
         Examples
         --------
-        >>> polyWeights = PolynomialWeightFunction()
+        >>> polyWeights = PolynomialWeights()
         >>> # To set the coefficient of x^3 to 3.14 use:
         >>> polyWeights.add_coefficient(3.14, 3)
         >>> # Similar, to set the constant coefficient 42, e.i. 42*x^0, use:
@@ -156,17 +156,17 @@ class PolynomialWeightFunction(AbstractWeightFunction):
         self._coefficients = np.asarray(coefficients).reshape(-1)
 
     def lines_for_log(self):
-        _lines = super(PolynomialWeightFunction, self).lines_for_log()
+        _lines = super(PolynomialWeights, self).lines_for_log()
         _lines['Type'] = 'Polynomial'
         _lines['Coefficients'] = "%s" % self.coefficients
         return _lines
 
     def __str__(self):
-        _str = super(PolynomialWeightFunction, self).__str__()[0:-1]
+        _str = super(PolynomialWeights, self).__str__()[0:-1]
         _str += ", coeffs=%s)" % self.coefficients
         return _str
 
     def __repr__(self):
-        _str = super(PolynomialWeightFunction, self).__repr__()[0:-1]
+        _str = super(PolynomialWeights, self).__repr__()[0:-1]
         _str += ", coeffs=%s>" % self.coefficients
         return _str

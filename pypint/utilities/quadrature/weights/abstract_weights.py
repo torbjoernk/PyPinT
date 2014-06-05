@@ -5,15 +5,13 @@
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
 
-import numpy as np
-
-from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
 from pypint.utilities.abc import Deepcopyable
 from pypint.utilities.assertions import assert_is_instance, assert_condition
 from pypint.utilities.tracing import class_name
 
 
-class AbstractWeightFunction(Deepcopyable, metaclass=ABCMeta):
+class AbstractWeights(Deepcopyable, metaclass=ABCMeta):
     """Provider for integration weights functions.
 
     This is an abstract interface for providers of integration weights functions.

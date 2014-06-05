@@ -5,7 +5,7 @@
 import numpy as np
 import numpy.polynomial.legendre as legendre_polynomial
 
-from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
 from pypint.utilities.assertions import assert_condition
 
 

@@ -6,7 +6,7 @@ import warnings
 from pypint.multi_level_providers.levels.time_level import TimeLevel
 from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
 from pypint.integrators.i_integrator import IIntegrator
-from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
 
 
 class TimeLevelTest(unittest.TestCase):

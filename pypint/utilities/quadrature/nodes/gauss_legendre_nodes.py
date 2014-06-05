@@ -5,7 +5,7 @@
 import numpy as np
 from scipy import linalg
 
-from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
 
 
 class GaussLegendreNodes(AbstractNodes):

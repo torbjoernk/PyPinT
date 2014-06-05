@@ -3,7 +3,7 @@ from nose.tools import *
 import numpy
 
 from tests import NumpyAwareTestCase, assert_numpy_array_equal
-from pypint.utilities.quadrature.node_providers.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
 
 
 class NodesImplementation(AbstractNodes):

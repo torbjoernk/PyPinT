@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 from nose.tools import *
 import numpy
 
-from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
-from pypint.utilities.quadrature.weight_function_providers.abstract_weight_function import AbstractWeightFunction
-from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
+from pypint.utilities.quadrature.weights.abstract_weights import AbstractWeights
+from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
 from tests import NumpyAwareTestCase, assert_numpy_array_almost_equal, assert_numpy_array_equal
 
 
@@ -41,7 +41,7 @@ TEST_DATA = \
 
 
 def constant_weight_function(nodes, expected_weights):
-    _weight_function = PolynomialWeightFunction(1.0)
+    _weight_function = PolynomialWeights(1.0)
     _weight_function.compute_weights(nodes)
     assert_numpy_array_almost_equal(_weight_function.weights, expected_weights)
 
@@ -53,20 +53,20 @@ def test_standard_gauss_lobatto_weights():
 
 class PolynomialWeightFunctionTest(NumpyAwareTestCase):
     def setUp(self):
-        self._default = PolynomialWeightFunction()
+        self._default = PolynomialWeights()
 
     def test_is_abstract_weight_function(self):
-        self.assertIsInstance(self._default, AbstractWeightFunction)
+        self.assertIsInstance(self._default, AbstractWeights)
 
     def test_provides_coefficient_accessor(self):
         self.assertNumpyArrayEqual(self._default.coefficients, numpy.asarray([1.0]))
         self._default.add_coefficient(1.2, 2)
         self.assertNumpyArrayEqual(self._default.coefficients, numpy.asarray([1.0, 0.0, 1.2]))
 
-        _test = PolynomialWeightFunction(1.1, 1.2)
+        _test = PolynomialWeights(1.1, 1.2)
         self.assertNumpyArrayEqual(_test.coefficients, numpy.asarray([1.1, 1.2]))
         del _test
-        _test = PolynomialWeightFunction([1.2, 1.3])
+        _test = PolynomialWeights([1.2, 1.3])
         self.assertNumpyArrayEqual(_test.coefficients, numpy.asarray([1.2, 1.3]))
 
     def test_provides_weights_accessor(self):
@@ -74,10 +74,10 @@ class PolynomialWeightFunctionTest(NumpyAwareTestCase):
 
     def test_provides_stringification(self):
         self.assertRegex(str(self._default),
-                         '^PolynomialWeightFunction<0x[0-9a-f]*>\(weights=None, coeffs=\[ 1\.\]\)')
+                         '^PolynomialWeights<0x[0-9a-f]*>\(weights=None, coeffs=\[ 1\.\]\)')
 
         self.assertRegex(repr(self._default),
-                         '^<PolynomialWeightFunction at 0x[0-9a-f]* : weights=None, coeffs=\[ 1\.\]>')
+                         '^<PolynomialWeights at 0x[0-9a-f]* : weights=None, coeffs=\[ 1\.\]>')
 
         self.assertIsNotNone(self._default.lines_for_log())
         self.assertIn('Type', self._default.lines_for_log())
