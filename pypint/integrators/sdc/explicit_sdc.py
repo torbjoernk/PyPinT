@@ -3,20 +3,18 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.kaltt@fz-juelich.de>
 """
-from pypint.integrators.sdc.sdc_integrator import SdcIntegrator
+from pypint.integrators.sdc.abstract_sdc import AbstractSdc
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
-from pypint.problems import IProblem
-from pypint.utilities import assert_is_instance, assert_named_argument
+from pypint.problems.i_problem import IProblem
+from pypint.utilities.assertions import assert_is_instance, assert_named_argument
 
 
-class ExplicitSdc(SdcIntegrator):
+class ExplicitSdc(AbstractSdc):
     """Explicit SDC Core
     """
 
-    name = "Explicit SDC"
-
-    def __init__(self):
-        super(ExplicitSdc, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(ExplicitSdc, self).__init__(*args, **kwargs)
 
     def run(self, state, **kwargs):
         """Explicit Euler step method.
@@ -54,6 +52,11 @@ class ExplicitSdc(SdcIntegrator):
             (_previous_step.value + state.current_step.delta_tau
              * (_previous_step.rhs - _previous_iteration_previous_step.rhs)
              + state.current_step.integral)
+
+    @AbstractSdc.name.getter
+    def name(self):
+        super(self.__class__, self.__class__).name.fget(self)
+        return 'Explicit SDC Integrator'
 
 
 __all__ = ['ExplicitSdc']

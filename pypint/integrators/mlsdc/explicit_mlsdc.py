@@ -4,10 +4,10 @@
 """
 import numpy as np
 
-from pypint.integrators.sdc.mlsdc_integrator import MlSdcIntegrator
+from integrators.mlsdc.mlsdc_integrator import MlSdcIntegrator
 from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
-from pypint.problems import IProblem
-from pypint.utilities import assert_is_instance, assert_named_argument
+from pypint.problems.i_problem import IProblem
+from pypint.utilities.assertions import assert_is_instance, assert_named_argument
 from pypint.utilities.logging import LOG
 
 

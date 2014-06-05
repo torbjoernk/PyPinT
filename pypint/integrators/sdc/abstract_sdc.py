@@ -2,14 +2,16 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.integrators.i_integrator import IIntegrator
+from abc import ABCMeta, abstractmethod
+
+from pypint.integrators.abstract_integrator import AbstractIntegrator
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
-from pypint.problems import IProblem
+from pypint.problems.i_problem import IProblem
 from pypint.solvers.diagnosis import Error, Residual
-from pypint.utilities import assert_named_argument
+from pypint.utilities.assertions import assert_named_argument
 
 
-class SdcIntegrator(IIntegrator):
+class AbstractSdc(AbstractIntegrator, metaclass=ABCMeta):
     """Provides the Step-Method-Core for :py:class:`.Sdc` solver.
 
     This is to be used as a Mixin for the :py:class:`.Sdc` solver to provide the core step-methods such as the explicit,
@@ -26,17 +28,16 @@ class SdcIntegrator(IIntegrator):
     :py:meth:`.SdcCoreMixin.__init__` is called by :py:meth:`.Sdc.init`.
     """
 
-    name = 'SDC Solver Core'
+    def __init__(self, *args, **kwargs):
+        super(AbstractSdc, self).__init__(*args, **kwargs)
 
-    def __init__(self):
-        super(SdcIntegrator, self).__init__()
-
+    @abstractmethod
     def run(self, state, **kwargs):
-        super(SdcIntegrator, self).run(state, **kwargs)
+        super(AbstractSdc, self).run(state, **kwargs)
 
     def compute_residual(self, state, **kwargs):
         # LOG.debug("computing residual")
-        super(SdcIntegrator, self).compute_residual(state, **kwargs)
+        super(AbstractSdc, self).compute_residual(state, **kwargs)
         _step = kwargs['step'] if 'step' in kwargs else state.current_step
         _step.solution.residual = Residual(
             abs(state.current_time_step.initial.value
@@ -50,7 +51,7 @@ class SdcIntegrator(IIntegrator):
         #                   state.current_step.value[0]))
 
     def compute_error(self, state, **kwargs):
-        super(SdcIntegrator, self).compute_error(state, **kwargs)
+        super(AbstractSdc, self).compute_error(state, **kwargs)
 
         assert_named_argument('problem', kwargs, types=IProblem, descriptor="Problem", checking_obj=self)
 
@@ -68,6 +69,12 @@ class SdcIntegrator(IIntegrator):
             #  (unless we find an error approximation method)
             pass
 
+    @AbstractIntegrator.name.getter
+    @abstractmethod
+    def name(self):
+        super(self.__class__, self.__class__).name.fget(self)
+        return 'SDC Integrator Interface'
+
     def _previous_iteration_previous_step(self, state):
         if state.previous_iteration_index is not None:
             if state.previous_step_index is not None:
@@ -84,4 +91,4 @@ class SdcIntegrator(IIntegrator):
             return state.initial
 
 
-__all__ = ['SdcIntegrator']
+__all__ = ['AbstractSdc']

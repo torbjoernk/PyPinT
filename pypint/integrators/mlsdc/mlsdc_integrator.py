@@ -2,15 +2,15 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.integrators.i_integrator import IIntegrator
+from pypint.integrators.abstract_integrator import AbstractIntegrator
 from pypint.solvers.states.mlsdc_solver_state import MlSdcStepState
 from pypint.problems.has_exact_solution_mixin import problem_has_exact_solution
-from pypint.problems import IProblem
+from pypint.problems.i_problem import IProblem
 from pypint.solvers.diagnosis import Error, Residual
-from pypint.utilities import assert_named_argument, assert_is_instance
+from pypint.utilities.assertions import assert_named_argument, assert_is_instance
 
 
-class MlSdcIntegrator(IIntegrator):
+class MlSdcIntegrator(AbstractIntegrator):
     """Provides the Step-Method-Core for :py:class:`.MlSdc` solver.
 
     This is to be used as a Mixin for the :py:class:`.MlSdc` solver to provide the core step-methods such as the

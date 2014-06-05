@@ -26,7 +26,7 @@ def sdc_solver_factory(problem, num_solvers, num_total_time_steps, solver_core, 
         number of parallel solvers to be created
     num_total_time_steps : :py:class:`int`
         total number of time steps for the whole interval defined by the problem
-    solver_core : :py:class:`.SdcIntegrator`
+    solver_core : :py:class:`.AbstractSdc`
         type of the SDC solver core
     solver_options : :py:class:`dict`
         options to be passed as it to the solver instantiation

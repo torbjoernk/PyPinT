@@ -1,23 +1,21 @@
 # coding=utf-8
 """
-
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.utilities import assert_is_instance
+from abc import ABCMeta, abstractmethod
+
 from pypint.solvers.states.i_solver_state import ISolverState
+from pypint.utilities.assertions import assert_is_instance
 
 
-class IIntegrator(object):
+class AbstractIntegrator(metaclass=ABCMeta):
     """Interface for the Solver's Cores
     """
 
-    name = 'Solver Core Interface'
-    """Human readable name of the solver's core
-    """
-
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         pass
 
+    @abstractmethod
     def run(self, state, **kwargs):
         """Apply the solver core to the current state
 
@@ -28,6 +26,7 @@ class IIntegrator(object):
         """
         assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
 
+    @abstractmethod
     def compute_residual(self, state, **kwargs):
         """Computes the residual of the current state
 
@@ -38,6 +37,7 @@ class IIntegrator(object):
         """
         assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
 
+    @abstractmethod
     def compute_error(self, state, **kwargs):
         """Computes the error of the current state
 
@@ -48,5 +48,12 @@ class IIntegrator(object):
         """
         assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
 
+    @property
+    @abstractmethod
+    def name(self):
+        """Human readable name of the solver's core
+        """
+        return 'Solver Core Interface'
 
-__all__ = ['IIntegrator']
+
+__all__ = ['AbstractIntegrator']
