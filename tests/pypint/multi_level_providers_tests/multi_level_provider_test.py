@@ -1,14 +1,10 @@
 # coding=utf-8
-"""
-
-.. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
-"""
 import unittest
 from unittest.mock import MagicMock, ANY
 
 from pypint.multi_level_providers.multi_level_provider import MultiLevelProvider
 from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
-from pypint.multi_level_providers.level_transitioners.abstract_level_transitioner import AbstractLevelTransitioner
+from pypint.multi_level_providers.transitioners.abstract_transitioner import AbstractTransitioner
 
 
 class MultiLevelProviderTest(unittest.TestCase):
@@ -17,12 +13,12 @@ class MultiLevelProviderTest(unittest.TestCase):
         self._intermediate_level = MagicMock(AbstractLevel, 'Intermediate Level')
         self._finest_level = MagicMock(AbstractLevel, 'Finest Level')
 
-        self._coarse_intermediate = MagicMock(AbstractLevelTransitioner, 'Coarse to Intermediate Transitioner',
+        self._coarse_intermediate = MagicMock(AbstractTransitioner, 'Coarse to Intermediate Transitioner',
                                               coarse_level=self._coarsest_level,
                                               fine_level=self._intermediate_level,
                                               prolongate=lambda *args: 'prolongated data',
                                               restrict=lambda *args: 'restricted data')
-        self._intermediate_fine = MagicMock(AbstractLevelTransitioner, 'Intermediate to Fine Transitioner',
+        self._intermediate_fine = MagicMock(AbstractTransitioner, 'Intermediate to Fine Transitioner',
                                             coarse_level=self._intermediate_level,
                                             fine_level=self._finest_level,
                                             prolongate=lambda *args: 'prolongated data',

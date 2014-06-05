@@ -8,7 +8,7 @@ from collections import OrderedDict
 from weakref import ref
 
 from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
-from pypint.multi_level_providers.level_transitioners.abstract_level_transitioner import AbstractLevelTransitioner
+from pypint.multi_level_providers.transitioners.abstract_transitioner import AbstractTransitioner
 from pypint.utilities import assert_condition, assert_is_in, assert_is_instance, class_name
 
 
@@ -70,7 +70,7 @@ class MultiLevelProvider(Container, Sized):
 
         See Also
         --------
-        :py:meth:`.AbstractLevelTransitioner.prolongate` : for details on prolongation
+        :py:meth:`.AbstractTransitioner.prolongate` : for details on prolongation
         """
         return self._level_transition(coarse_level=coarse_level, fine_level=fine_level).prolongate(coarse_data)
 
@@ -97,7 +97,7 @@ class MultiLevelProvider(Container, Sized):
 
         See Also
         --------
-        :py:meth:`.AbstractLevelTransitioner.restrict` : for details on restringation
+        :py:meth:`.AbstractTransitioner.restrict` : for details on restringation
         """
         return self._level_transition(coarse_level=coarse_level, fine_level=fine_level).restrict(fine_data)
 
@@ -144,15 +144,15 @@ class MultiLevelProvider(Container, Sized):
 
         Parameters
         ----------
-        transitioner : :py:class:`.AbstractLevelTransitioner`
+        transitioner : :py:class:`.AbstractTransitioner`
             Special level transitioner for specified prolongation and restringation between given coarse and fine level.
 
         Raises
         ------
         ValueError
-            if ``transitioner`` is not an :py:class:`.AbstractLevelTransitioner`
+            if ``transitioner`` is not an :py:class:`.AbstractTransitioner`
         """
-        assert_is_instance(transitioner, AbstractLevelTransitioner, descriptor="Level Transitioner", checking_obj=self)
+        assert_is_instance(transitioner, AbstractTransitioner, descriptor="Level Transitioner", checking_obj=self)
 
         _coarse_level = transitioner.coarse_level
         _fine_level = transitioner.fine_level
@@ -222,7 +222,7 @@ class MultiLevelProvider(Container, Sized):
 
         Returns
         -------
-        level_transitioner : :py:class:`.AbstractLevelTransitioner`
+        level_transitioner : :py:class:`.AbstractTransitioner`
             Level transition provider to restrict and prolongate between the given coarse and fine level.
             In case no specialized transitioner is found, the default one is returned.
 

@@ -1,12 +1,9 @@
 # coding=utf-8
-"""
-.. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
-"""
 import unittest
 
 
-class LevelProvidersTests(unittest.TestSuite):
-    def __init__(self):
+class LevelsTests(unittest.TestSuite):
+    def setUp(self):
         pass
 
 

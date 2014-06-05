@@ -169,7 +169,7 @@ problem._mg_stencil.grid = fine_mg_level.mid.shape
 LOG.info(SEPARATOR_LVL2)
 LOG.info("%sSetting Up MLSDC Solver" % VERBOSITY_LVL1)
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.multi_level_providers.level_transitioners.time_transition_provider import TimeTransitionProvider
+from pypint.multi_level_providers.transitioners.time_transition_provider import TimeTransitionProvider
 from pypint.utilities.quadrature.sdc_quadrature import SdcQuadrature
 
 base_mlsdc_level = SdcQuadrature()

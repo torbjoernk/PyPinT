@@ -1,10 +1,9 @@
 # coding=utf-8
-
 import unittest
 
 
-class LevelTransitionProvidersTests(unittest.TestSuite):
-    def __init__(self):
+class TransitionersTests(unittest.TestSuite):
+    def setUp(self):
         pass
 
 

@@ -1,7 +1,4 @@
 # coding=utf-8
-"""
-.. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
-"""
 import unittest
 from unittest.mock import MagicMock, patch
 import weakref
@@ -9,10 +6,8 @@ import weakref
 import numpy
 from nose.tools import *
 
-from pypint.multi_level_providers.level_transitioners.space_invariant_time_transitioner \
-    import SpaceInvariantTimeTransitioner
-from pypint.multi_level_providers.level_transitioners.abstract_level_transitioner \
-    import AbstractLevelTransitioner
+from pypint.multi_level_providers.transitioners.space_invariant_time_transitioner import SpaceInvariantTimeTransitioner
+from pypint.multi_level_providers.transitioners.abstract_transitioner import AbstractTransitioner
 from pypint.multi_level_providers.levels.time_level import TimeLevel
 from tests import assert_numpy_array_almost_equal
 
@@ -57,7 +52,7 @@ class SpaceInvariantTimeTransitionerTest(unittest.TestCase):
     def setUp(self):
         self._default = SpaceInvariantTimeTransitioner()
 
-        self._lagrage_patch = patch('pypint.multi_level_providers.level_transitioners.space_invariant_time_transitioner'
+        self._lagrage_patch = patch('pypint.multi_level_providers.transitioners.space_invariant_time_transitioner'
                                     '.lagrange_polynome',
                                     lambda *args: 1.0)
         self._lagrage_patch.start()
@@ -75,9 +70,9 @@ class SpaceInvariantTimeTransitionerTest(unittest.TestCase):
         self._lagrage_patch.stop()
 
     def test_is_abstract_level_transitioner(self):
-        # this does imply, that SpaceInvariantTimeTransitioner has the same behaviour as an AbstractLevelTransitioner;
+        # this does imply, that SpaceInvariantTimeTransitioner has the same behaviour as an AbstractTransitioner;
         #  but is a strong indicator that it does so
-        self.assertIsInstance(self._default, AbstractLevelTransitioner)
+        self.assertIsInstance(self._default, AbstractTransitioner)
 
     def test_has_coarse_level_accessor(self):
         self.assertIsNone(self._default.coarse_level, "Defaults to None")

@@ -10,7 +10,7 @@ from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
 from pypint.utilities import assert_is_instance, assert_condition, class_name
 
 
-class AbstractLevelTransitioner(object, metaclass=ABCMeta):
+class AbstractTransitioner(object, metaclass=ABCMeta):
     """Interface for level transitioners.
     """
 

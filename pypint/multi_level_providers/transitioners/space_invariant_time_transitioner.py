@@ -6,14 +6,14 @@ import warnings
 
 import numpy as np
 
-from pypint.multi_level_providers.level_transitioners.abstract_level_transitioner import AbstractLevelTransitioner
+from pypint.multi_level_providers.transitioners.abstract_transitioner import AbstractTransitioner
 from pypint.multi_level_providers.levels.time_level import TimeLevel
 from pypint.utilities.math import lagrange_polynome
 from pypint.utilities import assert_is_instance, func_name
 from pypint.utilities.logging import LOG
 
 
-class SpaceInvariantTimeTransitioner(AbstractLevelTransitioner):
+class SpaceInvariantTimeTransitioner(AbstractTransitioner):
     """Transition between to time levels without spatial change
 
     Time transitioning is based on Lagrange polynomials.
@@ -21,14 +21,14 @@ class SpaceInvariantTimeTransitioner(AbstractLevelTransitioner):
     def __init__(self, *args, **kwargs):
         super(SpaceInvariantTimeTransitioner, self).__init__(*args, **kwargs)
 
-    @AbstractLevelTransitioner.coarse_level.setter
+    @AbstractTransitioner.coarse_level.setter
     def coarse_level(self, coarse_level):
         super(self.__class__, self.__class__).coarse_level.fset(self, coarse_level)
         assert_is_instance(coarse_level(), TimeLevel, descriptor="Coarse Level", checking_obj=self)
         self._compute_time_prolongation_matrix()
         self._compute_time_restriction_matrix()
 
-    @AbstractLevelTransitioner.fine_level.setter
+    @AbstractTransitioner.fine_level.setter
     def fine_level(self, fine_level):
         super(self.__class__, self.__class__).fine_level.fset(self, fine_level)
         assert_is_instance(fine_level(), TimeLevel, descriptor="Fine Level", checking_obj=self)
