@@ -1,90 +1,92 @@
 # coding=utf-8
-import unittest
+from unittest.mock import MagicMock
 from nose.tools import *
-import numpy as np
+import numpy
 
 from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.weight_function_providers.abstract_weight_function import AbstractWeightFunction
+from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
+from tests import NumpyAwareTestCase, assert_numpy_array_almost_equal, assert_numpy_array_equal
 
 
 test_coefficients = [
-    np.asarray([42, 0.0, 3.14])
+    numpy.asarray([42, 0.0, 3.14])
 ]
 
 # Tests for w(x) = 1 as weighting function
-
-test_nodes_w_eq_1 = [np.array([-np.sqrt(1.0 / 3.0), np.sqrt(1.0 / 3.0)]),
-                     np.array([-np.sqrt(3.0 / 5.0), 0.0, np.sqrt(3.0 / 5.0)]),
-                     np.array([-0.906179845938664, -0.538469310105683, 0.0,
-                               0.538469310105683, 0.906179845938664])
-]
-test_weights_w_eq_1 = [np.array([1.0, 1.0]),
-                       np.array([5.0 / 9.0, 8.0 / 9.0, 5.0 / 9.0]),
-                       np.array([0.236926885056189, 0.478628670499366,
-                                 0.568888888888889, 0.478628670499366,
-                                 0.236926885056189])]
-
-
-def compare_ndarrays(arr1, arr2):
-    assert_equal(arr1.size, arr2.size,
-                 "Length of the two arrays not equal: {:d} != {:d}"
-                 .format(arr1.size, arr2.size))
-    for i in range(1, arr1.size):
-        assert_almost_equals(arr1.flat[i], arr2.flat[i],
-                             msg="{:d}. element not equal:".format(i) +
-                                 " arr1[{:d}]={:f} != {:f}=arr2[{:d}]"
-                                 .format(i, arr1.flat[i], arr2.flat[i], i),
-                             places=None, delta=1e-10)
-
-
-def init_with_coefficients(coefficients):
-    test_obj = PolynomialWeightFunction()
-    test_obj.init(coefficients)
-    assert_equal(test_obj.coefficients.size, coefficients.size,
-                 "Not all coefficients were set.")
-    for i in range(0, coefficients.size):
-        assert_equal(test_obj.coefficients[i], coefficients[i],
-                     "Coefficient {:d} was not set correctly.".format(i))
+TEST_DATA = \
+    [
+        {
+            'nodes': MagicMock(GaussLobattoNodes, '2 Gauss-Lobatto Nodes',
+                               nodes=numpy.array([-1.0, 1.0]),
+                               num_nodes=2,
+                               interval=numpy.array([-1.0, 1.0])),
+            'expected': numpy.asarray([1.0, 1.0])
+        },
+        {
+            'nodes': MagicMock(GaussLobattoNodes, '3 Gauss-Lobatto Nodes',
+                               nodes=numpy.array([-1.0, 0.0, 1.0]),
+                               num_nodes=3,
+                               interval=numpy.array([-1.0, 1.0])),
+            'expected': numpy.asarray([1.0 / 3.0, 4.0 / 3.0, 1.0 / 3.0])
+        },
+        {
+            'nodes': MagicMock(GaussLobattoNodes, '5 Gauss-Lobatto Nodes',
+                               nodes=numpy.array([-1.0, -numpy.sqrt(3.0 / 7.0), 0.0, numpy.sqrt(3.0 / 7.0), 1.0]),
+                               num_nodes=5,
+                               interval=numpy.array([-1.0, 1.0])),
+            'expected': numpy.asarray([1.0 / 10.0, 49.0 / 90.0, 32.0 / 45.0, 49.0 / 90.0, 1.0 / 10.0])
+        }
+    ]
 
 
-def add_coefficient(position, value):
-    test_obj = PolynomialWeightFunction()
-    test_obj.add_coefficient(value, position)
-    assert_equal(test_obj.coefficients[position], value)
+def constant_weight_function(nodes, expected_weights):
+    _weight_function = PolynomialWeightFunction(1.0)
+    _weight_function.compute_weights(nodes)
+    assert_numpy_array_almost_equal(_weight_function.weights, expected_weights)
 
 
-def init_with_coefficients_tests():
-    for coeffs in test_coefficients:
-        yield init_with_coefficients, coeffs
+def test_standard_gauss_lobatto_weights():
+    for data_set in TEST_DATA:
+        yield constant_weight_function, data_set['nodes'], data_set['expected']
 
 
-def add_coefficient_tests():
-    for coeffs in test_coefficients:
-        for i in range(0, coeffs.size):
-            yield add_coefficient, i, coeffs[i]
-
-#def exact_gauss_legendre_standard_weights(n):
-
-def test_standard_gauss_legendre_weights():
-    weights_provider = PolynomialWeightFunction()
-    weights_provider.init([1.0])
-    for i in range(len(test_nodes_w_eq_1)):
-        weights_provider.evaluate(test_nodes_w_eq_1[i],
-                                  np.array([-1.0, 1.0]))
-        calc_weights = weights_provider.weights
-        #print(calc_weights-test_weights_w_eq_1[i])
-        yield compare_ndarrays, calc_weights, test_weights_w_eq_1[i]
-
-
-class PolynomialWeightFunctionTest(unittest.TestCase):
+class PolynomialWeightFunctionTest(NumpyAwareTestCase):
     def setUp(self):
-        self._test_obj = PolynomialWeightFunction()
+        self._default = PolynomialWeightFunction()
 
-    def test_default_initialization(self):
-        self.assertIsNone(self._test_obj.weights,
-                          "Weights should be initialized as 'None'")
-        self.assertEqual(self._test_obj.coefficients.size, 0,
-                         "List of coefficients should be empty")
+    def test_is_abstract_weight_function(self):
+        self.assertIsInstance(self._default, AbstractWeightFunction)
+
+    def test_provides_coefficient_accessor(self):
+        self.assertNumpyArrayEqual(self._default.coefficients, numpy.asarray([1.0]))
+        self._default.add_coefficient(1.2, 2)
+        self.assertNumpyArrayEqual(self._default.coefficients, numpy.asarray([1.0, 0.0, 1.2]))
+
+        _test = PolynomialWeightFunction(1.1, 1.2)
+        self.assertNumpyArrayEqual(_test.coefficients, numpy.asarray([1.1, 1.2]))
+        del _test
+        _test = PolynomialWeightFunction([1.2, 1.3])
+        self.assertNumpyArrayEqual(_test.coefficients, numpy.asarray([1.2, 1.3]))
+
+    def test_provides_weights_accessor(self):
+        self.assertIsNone(self._default.weights)
+
+    def test_provides_stringification(self):
+        self.assertRegex(str(self._default),
+                         '^PolynomialWeightFunction<0x[0-9a-f]*>\(weights=None, coeffs=\[ 1\.\]\)')
+
+        self.assertRegex(repr(self._default),
+                         '^<PolynomialWeightFunction at 0x[0-9a-f]* : weights=None, coeffs=\[ 1\.\]>')
+
+        self.assertIsNotNone(self._default.lines_for_log())
+        self.assertIn('Type', self._default.lines_for_log())
+        self.assertEqual(self._default.lines_for_log()['Type'], 'Polynomial')
+        self.assertIn('Weights', self._default.lines_for_log())
+        self.assertIn('Coefficients', self._default.lines_for_log())
+        self.assertRegex(self._default.lines_for_log()['Coefficients'], '\[ 1\.\]')
 
 
 if __name__ == "__main__":
+    import unittest
     unittest.main()
