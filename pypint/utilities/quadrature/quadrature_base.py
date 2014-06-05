@@ -2,49 +2,54 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
+from collections import OrderedDict
+
 import numpy as np
 
-from pypint.utilities.quadrature.node_providers.i_nodes import INodes
-from pypint.utilities.quadrature.weight_function_providers.i_weight_function import IWeightFunction
-from pypint.utilities import assert_is_instance, assert_condition, class_name
+from pypint.utilities.quadrature.nodes.abstract_nodes import AbstractNodes
+from pypint.utilities.quadrature.weights.abstract_weights import AbstractWeights
+from pypint.utilities.data_structures.abstract_spatial_object import AbstractSpatialObject
+from pypint.utilities.abc import Deepcopyable
+from pypint.utilities.assertions import assert_is_instance, assert_condition, class_name
 
 
-class QuadratureBase(object):
+class QuadratureBase(Deepcopyable):
     """Basic and generic integrator for variable nodes and weights.
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self._nodes = None
         self._weights_function = None
 
-    def init(self, nodes_type, num_nodes, weights_function, interval=None):
+    def init(self, *args, **kwargs):
         """Initializes the integrator with given nodes and weights function.
 
         Before setting the given attributes, a consistency check is carried out testing for the correct types.
-        :py:meth:`.INodes.init` is called on the provided nodes object.
-        :py:meth:`.IWeightFunction.evaluate` is called on the provided weight function object.
+        :py:meth:`.AbstractNodes.init` is called on the provided nodes object.
+        :py:meth:`.AbstractWeights.compute_weights` is called on the provided weight function object.
 
         Parameters
         ----------
-        nodes_type : :py:class:`.INodes`
+        nodes_type : :py:class:`.AbstractNodes`
             Type of integration nodes as the class name **not instance**.
         num_nodes : :py:class:`int`
             Number of integration nodes
-        weights_function : :py:class:`.IWeightFunction` or :py:class:`dict`
+        weights_function : :py:class:`.AbstractWeights` or :py:class:`dict`
             Weight function for the integration nodes.
-            If it is a dictionary, it must have a ``class`` field with the :py:class:`.IWeightFunction` as the value.
-            Further fields are used as parameters to :py:class:`.IWeightFunction.init`.
-            In both cases the weight function class must be given as a name **not instance**.
+            If it is a dictionary, it must have a ``type`` field with the :py:class:`.AbstractWeights` as the value.
+            Further fields are used as parameters to :py:class:`.AbstractWeights.init`.
+            In both cases the weight function type must be given as a name **not instance**.
 
         Raises
         ------
         ValueError :
             If the type of one of the given arguments does not match.
 
-            * ``nodes_type`` must be a subclass of :py:class:`.INodes`
+            * ``nodes_type`` must be a subclass of :py:class:`.AbstractNodes`
             * ``num_nodes`` must be an :py:class:`int`
-            * ``weights_function`` must be a subclass of :py:class:`.IWeightFunction` or :py:class:`dict`
+            * ``weights_function`` must be a subclass of :py:class:`.AbstractWeights` or :py:class:`dict`
 
-                - if ``weights_function`` is a dictionary, its field ``class`` must be an :py:class:`.IWeightFunction`.
+                - if ``weights_function`` is a dictionary, its field ``type`` must be a subclass of
+                  :py:class:`.AbstractWeights`.
 
         Examples
         --------
@@ -55,65 +60,60 @@ class QuadratureBase(object):
         >>> options['num_nodes'] = 4
         >>> integrator.init(**options)
         """
-        assert_condition(isinstance(nodes_type, type) and issubclass(nodes_type, INodes),
-                         ValueError, message="Given nodes type is not a valid type: %s"
-                                             % nodes_type.__mro__[-2].__name__,
+        nodes_type = kwargs.get('nodes_type')
+        num_nodes = kwargs.get('num_nodes')
+        weights_function = kwargs.get('weights_function')
+        interval = kwargs.get('interval')
+
+        assert_condition(isinstance(nodes_type, type) and issubclass(nodes_type, AbstractNodes),
+                         ValueError, message="Given Nodes are of incompatible type: NOT %s"
+                                             % [b.__name__ for b in nodes_type.__bases__],
                          checking_obj=self)
         if isinstance(weights_function, dict):
-            assert_condition('class' in weights_function and issubclass(weights_function['class'], IWeightFunction),
-                             ValueError, "Given weight function is not a valid type: %s"
-                                         % weights_function['class'].__mro__[-2].__name__,
-                             self)
-            self._weights_function = weights_function['class']()
+            assert_condition('type' in weights_function and isinstance(weights_function['type'], type)
+                             and issubclass(weights_function['type'], AbstractWeights),
+                             ValueError, "Given Weights Function is of incompatible type: NOT %s"
+                                         % [b.__name__ for b in weights_function['type'].__bases__],
+                             checking_obj=self)
+            self._weights_function = weights_function['type']()
             # copy() is necessary as dictionaries are passed by reference
             _weight_function_options = weights_function.copy()
-            del _weight_function_options['class']
-            self._weights_function.init(**_weight_function_options)
+            del _weight_function_options['type']
+            self.weights_function.init(**_weight_function_options)
         else:
-            assert_condition(issubclass(weights_function, IWeightFunction),
-                             ValueError, message="Given Weight Function is not a valid type: %s"
-                                                 % weights_function.__mro__[-2].__name__,
+            assert_condition(issubclass(weights_function, AbstractWeights),
+                             ValueError, message="Given Weight Function is of incompatible type: NOT %s"
+                                                 % [b.__name__ for b in weights_function.__bases__],
                              checking_obj=self)
             self._weights_function = weights_function()
-            self._weights_function.init()
+            self.weights_function.init()
         assert_is_instance(num_nodes, int,
                            "Number of nodes need to be an integer: NOT %s" % type(num_nodes),
-                           self)
+                           checking_obj=self)
         self._nodes = nodes_type()
-        self._nodes.init(num_nodes, interval=interval)
-        self._weights_function.evaluate(self._nodes.nodes, interval=self._nodes.interval)
+        self.nodes_type.init(num_nodes, interval=interval)
+        self.weights_function.compute_weights(self.nodes_type, interval=self.nodes_type.interval)
 
-    def evaluate(self, data, **kwargs):
-        """Applies this integrator to given data in specified time interval.
+    def apply(self, data, **kwargs):
+        """Applies this integrator to given data.
 
         Parameters
         ----------
-        data : :py:class:`numpy.ndarray`
+        data : :py:class:`numpy.ndarray` or :py:class:`list` of :py:class:`.AbstractSpatialObject`
             Data vector of the values at given time points.
             Its length must equal the number of integration nodes.
-        time_start : :py:class:`float`
-            *(optional)*
-            Begining of the time interval to integrate over.
-        time_end : :py:class:`float`
-            *(optional)*
-            End of the time interval to integrate over.
 
         Raises
         ------
         ValueError :
-
-            * if ``data`` is not a :py:class:`numpy.ndarray`
-            * if either ``time_start`` or ``time_end`` are not given
-            * if ``time_start`` is larger or equals ``time_end``
+            If ``data`` is not a :py:class:`numpy.ndarray` or :py:class:`list` of :py:class:`.AbstractSpatialObject` and
+            has not as many items as there are integration nodes provided by :py:attr:`.nodes`.
         """
-        assert_is_instance(data, np.ndarray, descriptor="Data to integrate", checking_obj=self)
-        assert_condition("time_start" in kwargs or "time_end" in kwargs,
-                         ValueError, message="Either start or end of time interval need to be given.",
-                         checking_obj=self)
-        assert_condition(kwargs["time_start"] < kwargs["time_end"],
-                         ValueError,
-                         message="Time interval need to be non-zero positive: [{:f}, {:f}]"
-                                 .format(kwargs["time_start"], kwargs["time_end"]),
+        assert_is_instance(data, (list, np.ndarray), descriptor="Data to integrate", checking_obj=self)
+        assert_condition(len(data) == self.num_nodes, ValueError,
+                         message="Number of Integration Data Points does not match number of Nodes", checking_obj=self)
+        assert_condition(all(isinstance(elem, AbstractSpatialObject) for elem in data),
+                         ValueError, message="Data to Integrate must be a list of Spatial Objects.",
                          checking_obj=self)
 
     def transform_interval(self, interval):
@@ -124,11 +124,11 @@ class QuadratureBase(object):
 
         See Also
         --------
-        :py:meth:`.INodes.transform` : method called for node transformation
+        :py:meth:`.AbstractNodes.transform` : method called for node transformation
         """
         if interval is not None:
-            self._nodes.interval = interval
-        self._weights_function.evaluate(self._nodes.nodes)
+            self.nodes_type.interval = interval
+        self.weights_function.compute_weights(self.nodes_type)
 
     @property
     def nodes(self):
@@ -136,9 +136,13 @@ class QuadratureBase(object):
 
         See Also
         --------
-        :py:attr:`.INodes.nodes`
+        :py:attr:`.AbstractNodes.nodes`
         """
-        return self._nodes.nodes
+        return self.nodes_type.nodes if self.nodes_type else None
+
+    @property
+    def num_nodes(self):
+        return self.nodes_type.num_nodes if self.nodes_type else None
 
     @property
     def weights(self):
@@ -146,10 +150,9 @@ class QuadratureBase(object):
 
         See Also
         --------
-        :py:attr:`.IWeightFunction.weights`
+        :py:attr:`.AbstractWeights.weights`
         """
-        print("%s<0x%x>: %s" % (type(self._weights_function), id(self._weights_function), self._weights_function))
-        return self._weights_function.weights
+        return self.weights_function.weights if  self.weights_function else None
 
     @property
     def nodes_type(self):
@@ -157,13 +160,9 @@ class QuadratureBase(object):
 
         Returns
         -------
-        nodes : :py:class:`.INodes`
+        nodes : :py:class:`.AbstractNodes`
         """
         return self._nodes
-
-    @property
-    def num_nodes(self):
-        return self._nodes.num_nodes
 
     @property
     def weights_function(self):
@@ -171,19 +170,24 @@ class QuadratureBase(object):
 
         Returns
         -------
-        weights_function : :py:class:`.IWeightFunction`
+        weights_function : :py:class:`.AbstractWeights`
         """
         return self._weights_function
 
-    def print_lines_for_log(self):
-        _lines = {
-            'Type': class_name(self)
-        }
-        if self._nodes is not None:
-            _lines['Nodes'] = self._nodes.print_lines_for_log()
-        if self._weights_function is not None:
-            _lines['Weight Function'] = self._weights_function.print_lines_for_log()
+    def lines_for_log(self):
+        _lines = OrderedDict()
+        _lines['Nodes'] = \
+            self._nodes.print_lines_for_log() if self._nodes is not None else 'na'
+        _lines['Weights Function'] = \
+            self._weights_function.print_lines_for_log() if self._weights_function is not None else 'na'
         return _lines
 
     def __str__(self):
-        return "QuadratureBase<0x%x>(nodes=%s, weights=%s)" % (id(self), self.nodes_type, self.weights_function)
+        return \
+            "%s<0x%x>(nodes=%s, weights=%s)" \
+            % (class_name(self), id(self), self.nodes_type, self.weights_function)
+
+    def __repr__(self):
+        return \
+            "<%s at 0x%x : nodes=%r, weights=%r>" \
+            % (class_name(self), id(self), self.nodes_type, self.weights_function)
