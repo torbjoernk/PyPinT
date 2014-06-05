@@ -13,8 +13,8 @@ from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
 from pypint.solvers.i_parallel_solver import IParallelSolver
 from pypint.communicators.message import Message
 from pypint.multi_level_providers.multi_time_level_provider import MultiTimeLevelProvider
-from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
 from pypint.solvers.states.mlsdc_solver_state import MlSdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
@@ -47,7 +47,7 @@ class MlSdc(IIterativeTimeSolver, IParallelSolver):
         self._ml_provider = None
 
         self.__nodes_type = GaussLobattoNodes
-        self.__weights_type = PolynomialWeightFunction
+        self.__weights_type = PolynomialWeights
         self.__exact = np.zeros(0)
         self.__deltas = None  # deltas between nodes as array; for each level (0: coarsest)
         self.__time_points = None  # time points of nodes as array; for each level
@@ -63,10 +63,10 @@ class MlSdc(IIterativeTimeSolver, IParallelSolver):
         num_nodes : :py:class:`int`
             *(otional)*
             number of nodes per time step
-        nodes_type : :py:class:`.INodes`
+        nodes_type : :py:class:`.AbstractNodes`
             *(optional)*
             Type of integration nodes to be used (class name, **NOT instance**).
-        weights_type : :py:class:`.IWeightFunction`
+        weights_type : :py:class:`.AbstractWeights`
             *(optional)*
             Integration weights function to be used (class name, **NOT instance**).
 
@@ -747,7 +747,7 @@ class MlSdc(IIterativeTimeSolver, IParallelSolver):
             _current_step = self.state.current_iteration.current_level[_step_index]
             # if not _current_step.integral_available:
             # TODO: fix unneccessary recomputation of integrals
-            _current_step.integral = _integrator.evaluate(_integrate_values,
+            _current_step.integral = _integrator.apply(_integrate_values,
                                                           from_node=_step_index, target_node=_step_index + 1)
 
             # we successively compute the full integral

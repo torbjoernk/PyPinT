@@ -1,10 +1,12 @@
 # coding=utf-8
 import unittest
+from copy import copy, deepcopy
 
 import numpy as np
 
 from pypint.utilities.data_structures.scalar_1d import Scalar1D
 from pypint.utilities.data_structures.abstract_spatial_object import AbstractSpatialObject
+from pypint.utilities.abc import Copyable, Deepcopyable
 
 
 class Scalar1DTest(unittest.TestCase):
@@ -132,6 +134,28 @@ class Scalar1DTest(unittest.TestCase):
         self._default.set(-1.0)
         self.assertEqual((-self._default).value, 1.0)
         self.assertEqual((+self._default).value, -1.0)
+
+    def test_is_copyable(self):
+        self.assertIsInstance(self._default, Copyable)
+        self._default.set(42)
+        _copy = copy(self._default)
+        self.assertEqual(_copy.value, self._default.value)
+        self.assertEqual(_copy.dtype, self._default.dtype)
+        self.assertNotEqual(id(_copy), id(self._default))
+        self.assertNotEqual(hash(copy), hash(self._default))
+        self.assertEqual(id(_copy.dtype), id(self._default.dtype))
+        self.assertEqual(id(_copy.value), id(self._default.value))
+
+    def test_is_deepcopyable(self):
+        self.assertIsInstance(self._default, Deepcopyable)
+        self._default.set(42)
+        _copy = deepcopy(self._default)
+        self.assertEqual(_copy.value, self._default.value)
+        self.assertEqual(_copy.dtype, self._default.dtype)
+        self.assertNotEqual(id(_copy), id(self._default))
+        self.assertNotEqual(hash(copy), hash(self._default))
+        self.assertNotEqual(id(_copy.dtype), id(self._default.dtype))
+        self.assertNotEqual(id(_copy.value), id(self._default.value))
 
     def test_has_stringification(self):
         self.assertRegex(str(self._default), '^Scalar1D<0x[0-9a-f]*>\(dtype=.*, value=.*\)$')

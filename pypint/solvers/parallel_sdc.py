@@ -13,8 +13,8 @@ from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
 from pypint.solvers.i_parallel_solver import IParallelSolver
 from pypint.communicators.message import Message
 from pypint.utilities.quadrature.quadrature_base import QuadratureBase
-from pypint.utilities.quadrature.node_providers.gauss_lobatto_nodes import GaussLobattoNodes
-from pypint.utilities.quadrature.weight_function_providers.polynomial_weight_function import PolynomialWeightFunction
+from pypint.utilities.quadrature.nodes.gauss_lobatto_nodes import GaussLobattoNodes
+from pypint.utilities.quadrature.weights.polynomial_weights import PolynomialWeights
 from pypint.problems import IInitialValueProblem, problem_has_exact_solution
 from pypint.solvers.states.sdc_solver_state import SdcSolverState
 from pypint.solvers.diagnosis import IDiagnosisValue
@@ -98,7 +98,7 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
         self._classic = True
 
         self.__nodes_type = GaussLobattoNodes
-        self.__weights_type = PolynomialWeightFunction
+        self.__weights_type = PolynomialWeights
         self.__num_nodes = 3
         self.__exact = np.zeros(0)
         self.__time_points = {
@@ -116,10 +116,10 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
         num_nodes : :py:class:`int`
             *(otional)*
             number of nodes per time step
-        nodes_type : :py:class:`.INodes`
+        nodes_type : :py:class:`.AbstractNodes`
             *(optional)*
             Type of integration nodes to be used (class name, **NOT instance**).
-        weights_type : :py:class:`.IWeightFunction`
+        weights_type : :py:class:`.AbstractWeights`
             *(optional)*
             Integration weights function to be used (class name, **NOT instance**).
         classic : :py:class:`bool`
@@ -554,7 +554,7 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
         for _step_index in range(0, len(self.state.current_time_step)):
             _current_step = self.state.current_time_step[_step_index]
             if self.classic:
-                _integral = self._integrator.evaluate(_integrate_values,
+                _integral = self._integrator.apply(_integrate_values,
                                                       from_node=_step_index, target_node=_step_index + 1)
                 # we successively compute the full integral, which is used for the residual at the end
                 _full_integral += _integral
@@ -654,7 +654,7 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
         #                      checking_obj=self)
         #
         #     # integrate
-        #     self.state.current_step.integral = self._integrator.evaluate(_integrate_values,
+        #     self.state.current_step.integral = self._integrator.apply(_integrate_values,
         #                                                                  from_node=_current_step_index,
         #                                                                  target_node=_current_step_index + 1)
         #     del _integrate_values
