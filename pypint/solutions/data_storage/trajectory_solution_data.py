@@ -4,46 +4,28 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 import warnings
+from copy import deepcopy
+from collections import OrderedDict
+from collections.abc import MutableSequence
 
 import numpy as np
 
 from pypint.solutions.data_storage.step_solution_data import StepSolutionData
-from pypint.utilities import assert_condition, class_name
+from pypint.utilities.abc import Deepcopyable
+from pypint.utilities.assertions import assert_condition, assert_is_in, assert_is_instance
 
 
-class TrajectorySolutionData(object):
+class TrajectorySolutionData(MutableSequence, Deepcopyable):
     """Storage for a transient trajectory of solutions.
 
     Basically, this is nothing more than an array of :py:class:`.StepSolutionData` objects and a couple of
     utility functions for easy data access and consistency checks.
-
-    This class provides a selected subset of `Python's mutable sequence datatype methods`_:
-
-    :py:meth:`.__len__`
-        Returns the number of :py:class:`.StepSolutionData` objects stored in this instance.
-
-    :py:meth:`.__gettiem__`
-        Takes the 0-based index of the :py:class:`.StepSolutionData` object to query.
-
-    :py:meth:`.__setitem__`
-        Takes a :py:class:`float` representing the time point and a :py:class:`numpy.ndarray` as the rvalue.
-        Same as ``.add_solution_data(value=<rvalue>, time_point=<time_point>)``.
-
-    :py:meth:`.__iter__`
-        Gives an iterator over the stored :py:class:`.StepSolutionData` objects (proxies
-        :py:meth:`numpy.ndarray.__iter__`).
-
-    :py:meth:`.__contains__`
-        Finds the given :py:class:`.StepSolutionData` object in this sequence.
-
-    .. _Python's mutable sequence datatype methods: https://docs.python.org/3/library/stdtypes.html?highlight=sequence#mutable-sequence-types
     """
 
     def __init__(self):
-        # self._data: numpy.ndarray of StepSolutionData instances
-        self._data = np.zeros(0, dtype=np.object)
-        self._time_points = np.zeros(0, dtype=np.float)
-        self._numeric_type = None
+        self._data = []
+        self._time_points = []
+        self._dtype = None
         self._dim = None
         self._finalized = False
 
@@ -56,6 +38,11 @@ class TrajectorySolutionData(object):
             *(optional)*
             In case a single unnamed argument is given, this is required to be an instance of
             :py:class:`.StepSolutionData`.
+
+            index : :py:class:`integer`
+                *(optional)*
+                List index of the to-be-added step data.
+
             If no named argument is given, the following two parameters are *not* optional.
         values : :py:class:`numpy.ndarray`
             *(optional)*
@@ -75,29 +62,34 @@ class TrajectorySolutionData(object):
         """
         assert_condition(not self.finalized, AttributeError,
                          message="Cannot change this solution data storage any more.", checking_obj=self)
-        _old_data = self._data  # backup for potential rollback
+        _old_data = deepcopy(self._data)  # backup for potential rollback
 
         if len(args) == 1 and isinstance(args[0], StepSolutionData):
             assert_condition(args[0].time_point is not None, ValueError,
                              message="Time point must not be None.", checking_obj=self)
-            self._data = np.append(self._data, np.array([args[0]], dtype=np.object))
+            if 'index' not in kwargs:
+                self._data.append(args[0])
+            else:
+                self._data.insert(kwargs.get('index'), args[0])
         else:
-            self._data = np.append(self._data, np.array([StepSolutionData(*args, **kwargs)], dtype=np.object))
+            self._data.append(StepSolutionData(*args, **kwargs))
 
         try:
             self._check_consistency()
         except ValueError as err:
             # consistency check failed, thus removing recently added solution data storage
             warnings.warn("Consistency Check failed with:\n\t\t{}\n\tNot adding this solution.".format(*err.args))
-            self._data = _old_data.copy()  # rollback
+            self._data = _old_data  # rollback
             raise err
         finally:
             # everything ok
             pass
 
-        if self._data.size == 1:
-            self._dim = self._data[-1].dim
-            self._numeric_type = self._data[-1].numeric_type
+        self._time_points = [step.time_point for step in self.data]
+
+        if len(self._data) == 1:
+            self._dim = self._data[0].dim
+            self._dtype = self._data[0].dtype
 
     def finalize(self):
         """Locks this storage data instance.
@@ -110,6 +102,41 @@ class TrajectorySolutionData(object):
         assert_condition(not self.finalized, AttributeError,
                          message="This solution data storage is already finalized.", checking_obj=self)
         self._finalized = True
+
+    def at(self, time_point):
+        """Retrieve data at a given time point
+
+        Parameters
+        ----------
+        time_point : :py:class:`float`
+            time point of the solution data to retrieve
+
+        Returns
+        -------
+        data : py:class:`.StepSolutionData` or :py:class:`None`
+            :py:class:`None` is returned iff `time_point` is not in :py:attr:`.time_points`
+        """
+        if time_point in self._time_points:
+            return self._data[self._time_points.index(time_point)]
+        else:
+            return None
+
+    def set_at(self, time_point, data):
+        assert_is_in(time_point, self._time_points, elem_desc='Time Point', list_desc='Available Time Points',
+                     checking_obj=self)
+        assert_is_instance(data, StepSolutionData, descriptor='Solution Data', checking_obj=self)
+        _old_data = deepcopy(self._data)
+        self._data[self._time_points.index(time_point)] = data
+        try:
+            self._check_consistency()
+        except ValueError as err:
+            # consistency check failed, thus removing recently added solution data storage
+            warnings.warn("Consistency Check failed with:\n\t\t{}\n\tNot adding this solution.".format(*err.args))
+            self._data = _old_data  # rollback
+            raise err
+        finally:
+            # everything ok
+            pass
 
     @property
     def finalized(self):
@@ -140,7 +167,7 @@ class TrajectorySolutionData(object):
         -------
         error : :py:class:`numpy.ndarray` of :py:class:`float`
         """
-        return np.array([step.time_point for step in self.data], dtype=np.float)
+        return np.asarray(self._time_points, dtype=np.float)
 
     @property
     def values(self):
@@ -150,7 +177,7 @@ class TrajectorySolutionData(object):
         -------
         error : :py:class:`numpy.ndarray` of :py:class:`.numeric_type`
         """
-        return np.array([step.value for step in self.data], dtype=np.object)
+        return np.asarray([step.value for step in self.data], dtype=np.object)
 
     @property
     def errors(self):
@@ -160,7 +187,7 @@ class TrajectorySolutionData(object):
         -------
         error : :py:class:`numpy.ndarray` of :py:class:`.Error`
         """
-        return np.array([step.error for step in self.data], dtype=np.object)
+        return np.asarray([step.error for step in self.data], dtype=np.object)
 
     @property
     def residuals(self):
@@ -170,13 +197,13 @@ class TrajectorySolutionData(object):
         -------
         error : :py:class:`numpy.ndarray` of :py:class:`.Residual`
         """
-        return np.array([step.residual for step in self.data], dtype=np.object)
+        return np.asarray([step.residual for step in self.data], dtype=np.object)
 
     @property
-    def numeric_type(self):
+    def dtype(self):
         """Read-only accessor for the numeric type of the solution data values.
         """
-        return self._numeric_type
+        return self._dtype
 
     @property
     def dim(self):
@@ -191,60 +218,60 @@ class TrajectorySolutionData(object):
         ------
         ValueError :
 
-            * if the numeric type of at least one step does not match :py:attr:`.numeric_type`
+            * if the time points of the steps are not strictly increasing
+            * if the numeric type of at least one step does not match :py:attr:`.dtype`
             * if the spacial dimension of at least one step does not match :py:attr:`.dim`
         """
-        if self._data.size > 0:
+        if len(self._data) > 0:
             _time_point = self.data[0].time_point
-            for step in range(1, self.data.size):
-                assert_condition(self.data[step].time_point > _time_point, ValueError,
-                                 message="Time points must be strictly increasing: {:f} <= {:f}"
-                                         .format(self.data[step].time_point, _time_point),
+            for step_index in range(1, len(self.data)):
+                assert_condition(self.data[step_index].time_point > _time_point, ValueError,
+                                 message="Time points must be strictly increasing: %f <= %f"
+                                         % (self.data[step_index].time_point, _time_point),
                                  checking_obj=self)
-                assert_condition(self.data[step].numeric_type == self.numeric_type,
+                assert_condition(self.data[step_index].dtype == self.dtype,
                                  ValueError,
-                                 message=("Numeric type of step {:d} does not match global numeric type: "
-                                          .format(step, self.numeric_type) +
-                                          "{} != {}".format(self.data[step].numeric_type, self.numeric_type)),
+                                 message=("Numeric type of step %d does not match global numeric type: %s"
+                                          % (step_index, self.dtype) +
+                                          "%s != %s" % (self.data[step_index].dtype, self.dtype)),
                                  checking_obj=self)
-                assert_condition(self.data[step].dim == self.dim,
+                assert_condition(self.data[step_index].dim == self.dim,
                                  ValueError,
-                                 message=("Spacial dimension of step {:d} does not match global spacial dimension: "
-                                          .format(step, self.dim) +
-                                          "{:s} != {:s}".format(self.data[step].dim, self.dim)),
+                                 message=("Spacial dimension of step %d does not match global spacial dimension: %s"
+                                          % (step_index, self.dim) +
+                                          "%s != %s" % (self.data[step_index].dim, self.dim)),
                                  checking_obj=self)
 
-    def append(self, p_object):
-        """
-        See Also
-        --------
-        :py:meth:`.add_solution_data` : with one unnamed parameter
-        """
-        self.add_solution_data(p_object)
+    def insert(self, index, value):
+        self.add_solution_data(value, index=index)
 
     def __len__(self):
-        return self._data.size
+        return len(self._data)
 
-    def __getitem__(self, item):
-        return self._data[item]
+    def __getitem__(self, index):
+        return self._data[index]
 
-    def __setitem__(self, key, value):
-        self.add_solution_data(value=value, time_point=key)
+    def __setitem__(self, index, value):
+        self.set_at(index, value)
 
-    def __iter__(self):
-        return iter(self._data)
+    def __delitem__(self, index):
+        if 0 <= abs(index) < len(self._data) and 0 <= abs(index) < len(self._time_points):
+            del self._time_points[index]
+            del self._data[index]
+        else:
+            raise IndexError
 
-    def __contains__(self, item):
-        assert_condition(isinstance(item, StepSolutionData), TypeError,
-                         message="Item must be a StepSolutionData: NOT {}".format(class_name(item)),
-                         checking_obj=self)
-        for elem in self._data:
-            if elem == item:
-                return True
-        return False
+    def lines_for_log(self):
+        _lines = OrderedDict()
+        _lines['Data'] = [item.lines_for_log() for item in self.data]
+        _lines['Time Points'] = "%s" % self._time_points
+        return _lines
 
     def __str__(self):
-        return "TrajectorySolutionData(data={}, time_points={})".format(self.data, self.time_points)
+        return "TrajectorySolutionData<0x%x>(data=%s, time_points=%s)" % (id(self), self.data, self.time_points)
+
+    def __repr__(self):
+        return "<TrajectorySolutionData at 0x%x : data=%s, time_points=%s>" % (id(self), self.data, self.time_points)
 
 
 __all__ = ['TrajectorySolutionData']

@@ -1,18 +1,18 @@
 # coding=utf-8
 """
-
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from copy import deepcopy
+from collections import OrderedDict
 
 import numpy as np
 
 from pypint.solvers.diagnosis import Error, Residual
+from pypint.utilities.data_structures.abstract_spatial_object import AbstractSpatialObject
+from pypint.utilities.abc import Comparable, Deepcopyable
 from pypint.utilities import assert_is_instance, assert_condition, class_name
-from pypint.utilities.logging import LOG
 
 
-class StepSolutionData(object):
+class StepSolutionData(Comparable, Deepcopyable):
     """Storage for the solution of a single time point.
 
     Finalization
@@ -23,7 +23,7 @@ class StepSolutionData(object):
     Comparability
         It can be compared with respect to all numerical comparison operators.
         For all operators to evaluate to :py:class:`True` it is necessary that :py:attr:`.dim` and
-        :py:attr:`.numeric_type` are the same.
+        :py:attr:`.dtype` are the same.
         Equality is given, if :py:attr:`.time_point`, :py:attr:`.error` and :py:attr:`.residual` are the same as well
         as :py:attr:`.value` with respect to :py:meth:`numpy.array_equal`.
         The other comparison operators do not take :py:attr:`.value`, :py:attr:`.error` and :py:attr:`.residual` into
@@ -37,9 +37,8 @@ class StepSolutionData(object):
         """
         Parameters
         ----------
-        value : :py:class:`numpy.ndarray`
+        value : :py:class:`.AbstractSpatialObject`
             Solution value.
-            Size of the vector must equal the spacial dimension of the problem.
         time_point : :py:class:`float`
             Time point of associated with the solution.
         error : :py:class:`.Error` or :py:class:`numpy.ndarray`
@@ -52,7 +51,7 @@ class StepSolutionData(object):
         ------
         ValueError :
 
-            * if ``value`` is not a :py:class:`numpy.ndarray`
+            * if ``value`` is not a :py:class:`.AbstractSpatialObject`
             * if ``time_point`` is not a :py:class:`float`
             * if either :py:attr:`.error` or :py:attr:`.residual` raises
 
@@ -61,9 +60,8 @@ class StepSolutionData(object):
 
         Notes
         -----
-        The spacial dimension and the numerical type are derived from the given solution values.
-        Thus, specifying :py:attr:`.ISolutionData.dim` and :py:attr:`.ISolutionData.numeric_type` is not recommended
-        (in fact they are ignored).
+        The spacial dimension and the numerical type are derived from the given values.
+        Thus, specifying :py:attr:`.dim` and :py:attr:`.dtype` is not recommended (in fact they are ignored).
         """
         self._data = None
         self._time_point = None
@@ -71,7 +69,7 @@ class StepSolutionData(object):
         self._residual = None
 
         self._dim = 0
-        self._numeric_type = None
+        self._dtype = None
         self._finalized = False
 
         if 'value' in kwargs:
@@ -97,12 +95,6 @@ class StepSolutionData(object):
         assert_condition(not self.finalized, AttributeError,
                          message="This solution data storage is already finalized.", checking_obj=self)
         self._finalized = True
-
-    def definalize(self):
-        if self.finalized:
-            self._finalized = False
-        else:
-            LOG.warning("This Solution is not finalized.")
 
     @property
     def finalized(self):
@@ -135,9 +127,9 @@ class StepSolutionData(object):
     def value(self, value):
         assert_condition(not self.finalized, AttributeError,
                          message="Cannot change this solution data storage any more.", checking_obj=self)
-        assert_is_instance(value, np.ndarray, descriptor="Values", checking_obj=self)
-        self._dim = value.shape
-        self._numeric_type = value.dtype
+        assert_is_instance(value, AbstractSpatialObject, descriptor="Value", checking_obj=self)
+        self._dim = value.dim
+        self._dtype = value.dtype
         self._data = value
 
     @property
@@ -234,41 +226,41 @@ class StepSolutionData(object):
         return self._dim
 
     @property
-    def numeric_type(self):
+    def dtype(self):
         """Read-only accessor for the numerical type.
 
         Returns
         -------
-        numeric_type : :py:class:`numpy.dtype`
+        dtype : :py:class:`numpy.dtype`
         """
-        return self._numeric_type
+        return self._dtype
+
+    def lines_for_log(self):
+        _lines = OrderedDict()
+        _lines['Finalized'] = "%s" % self.finalized
+        _lines['Time Point'] = "%s" % self.time_point
+        _lines['Value'] = self.value.lines_for_log() if self.value else 'none'
+        _lines['Error'] = "%s" % self.error if self.error else 'none'
+        _lines['Residual'] = "%s" % self.residual if self.residual else 'none'
+        return _lines
 
     def __str__(self):
-        return "StepSolutionData(value={}, time_point={}, finalized={})"\
-            .format(self.value, self.time_point, self.finalized)
+        return "%s<0x%x>(value=%s, time_point=%s, finalized=%s)" \
+            % (self.__class__.__name__, id(self), self.value, self.time_point, self.finalized)
 
-    def __copy__(self):
-        copy = self.__class__.__new__(self.__class__)
-        copy.__dict__.update(self.__dict__)
-        copy._finalized = False
-        return copy
-
-    def __deepcopy__(self, memo):
-        copy = self.__class__.__new__(self.__class__)
-        memo[id(self)] = copy
-        for item, value in self.__dict__.items():
-            setattr(copy, item, deepcopy(value, memo))
-        copy._finalized = False
-        return copy
+    def __repr__(self):
+        return "<%s at 0x%x : value=%r, time_point=%r, finalized=%r>" \
+            % (self.__class__.__name__, id(self), self.value, self.time_point, self.finalized)
 
     def __eq__(self, other):
         assert_is_instance(other, StepSolutionData,
                            message="Can not compare StepSolutionData with {}".format(class_name(other)),
                            checking_obj=self)
+        super(StepSolutionData, self).__eq__(other)
         return (
             self.time_point == other.time_point
             and self.dim == other.dim
-            and self.numeric_type == other.numeric_type
+            and self.dtype == other.dtype
             and np.array_equal(self.value, other.value)
             and self.error == other.error
             and self.residual == other.residual
@@ -278,9 +270,10 @@ class StepSolutionData(object):
         assert_is_instance(other, StepSolutionData,
                            message="Can not compare StepSolutionData with {}".format(class_name(other)),
                            checking_obj=self)
+        super(StepSolutionData, self).__ge__(other)
         return (
             self.dim == other.dim
-            and self.numeric_type == other.numeric_type
+            and self.dtype == other.dtype
             and self.time_point >= other.time_point
         )
 
@@ -288,9 +281,10 @@ class StepSolutionData(object):
         assert_is_instance(other, StepSolutionData,
                            message="Can not compare StepSolutionData with {}".format(class_name(other)),
                            checking_obj=self)
+        super(StepSolutionData, self).__gt__(other)
         return (
             self.dim == other.dim
-            and self.numeric_type == other.numeric_type
+            and self.dtype == other.dtype
             and self.time_point > other.time_point
         )
 
@@ -298,9 +292,10 @@ class StepSolutionData(object):
         assert_is_instance(other, StepSolutionData,
                            message="Can not compare StepSolutionData with {}".format(class_name(other)),
                            checking_obj=self)
+        super(StepSolutionData, self).__le__(other)
         return (
             self.dim == other.dim
-            and self.numeric_type == other.numeric_type
+            and self.dtype == other.dtype
             and self.time_point < other.time_point
         )
 
@@ -308,17 +303,12 @@ class StepSolutionData(object):
         assert_is_instance(other, StepSolutionData,
                            message="Can not compare StepSolutionData with {}".format(class_name(other)),
                            checking_obj=self)
+        super(StepSolutionData, self).__lt__(other)
         return (
             self.dim == other.dim
-            and self.numeric_type == other.numeric_type
+            and self.dtype == other.dtype
             and self.time_point < other.time_point
         )
-
-    def __ne__(self, other):
-        assert_is_instance(other, StepSolutionData,
-                           message="Can not compare StepSolutionData with {}".format(class_name(other)),
-                           checking_obj=self)
-        return not self.__eq__(other)
 
     # StepSolutionData is mutable
     __hash__ = None

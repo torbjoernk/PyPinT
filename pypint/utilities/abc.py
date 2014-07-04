@@ -2,8 +2,42 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from copy import deepcopy
+
+
+class Comparable(metaclass=ABCMeta):
+    """Abstract Base Class for comparable objects
+    """
+    __slots__ = ()
+
+    @abstractmethod
+    def __eq__(self, other):
+        return NotImplemented
+
+    @abstractmethod
+    def __gt__(self, other):
+        return NotImplemented
+
+    def __ge__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return (self > other) or (self == other)
+
+    def __le__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return not (self > other) or (self == other)
+
+    def __lt__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return not (self > other) and not (self == other)
+
+    def __ne__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return not (self == other)
 
 
 class Copyable(metaclass=ABCMeta):
