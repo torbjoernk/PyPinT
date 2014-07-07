@@ -5,7 +5,7 @@
 import numpy as np
 
 from pypint.utilities.data_structures.abstract_spatial_object import AbstractSpatialObject
-from pypint.utilities import assert_condition, assert_is_in
+from pypint.utilities.assertions import assert_condition, assert_is_in
 
 
 class Scalar1D(AbstractSpatialObject):
@@ -14,6 +14,8 @@ class Scalar1D(AbstractSpatialObject):
 
         if self.dtype is None:
             self.dtype = np.dtype(np.float64)
+
+        self._dim = 1
 
         self._value = self.dtype.type()
         if len(args) == 1:
@@ -31,6 +33,10 @@ class Scalar1D(AbstractSpatialObject):
         assert_is_in(self.dtype.kind, ['i', 'u', 'f', 'c'],
                      elem_desc="Numeric Type Kind", list_desc='Valid Type Kinds',
                      checking_obj=self)
+
+    @AbstractSpatialObject.dim.setter
+    def dim(self, dim):
+        raise RuntimeError("Change of dimension for Scalar1D not possible.")
 
     def set(self, value):
         super(Scalar1D, self).set(value)
@@ -115,6 +121,18 @@ class Scalar1D(AbstractSpatialObject):
     def __neg__(self):
         super(Scalar1D, self).__neg__()
         return Scalar1D(value=-self.value, dtype=self.dtype)
+
+    def __eq__(self, other):
+        super(Scalar1D, self).__eq__(other)
+        if isinstance(other, Scalar1D):
+            return self.dim == other.dim and self.value == other.value
+        return NotImplemented
+
+    def __gt__(self, other):
+        super(Scalar1D, self).__gt__(other)
+        if isinstance(other, Scalar1D):
+            return self.dim == other.dim and self.value > other.value
+        return NotImplemented
 
 
 __all__ = ['Scalar1D']

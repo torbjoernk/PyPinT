@@ -7,11 +7,11 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pypint.utilities.abc import Deepcopyable
+from pypint.utilities.abc import Comparable, Deepcopyable
 from pypint.utilities import assert_is_instance, class_name
 
 
-class AbstractSpatialObject(Deepcopyable, metaclass=ABCMeta):
+class AbstractSpatialObject(Deepcopyable, Comparable, metaclass=ABCMeta):
     """Abstract Base Class for spatial objects
 
     Implementations must override the following methods:
@@ -44,10 +44,16 @@ class AbstractSpatialObject(Deepcopyable, metaclass=ABCMeta):
         ----------
         dtype : :py:class:`numpy.dtype`
             numerical type of the contained data
+        dim : _implementation defined_
+            dimension of the data structure
         """
         self._dtype = None
         if 'dtype' in kwargs:
             self.dtype = kwargs['dtype']
+
+        self._dim = None
+        if 'dim' in kwargs:
+            self.dim = kwargs['dim']
 
     @property
     def dtype(self):
@@ -59,6 +65,15 @@ class AbstractSpatialObject(Deepcopyable, metaclass=ABCMeta):
             dtype = np.dtype(dtype)
         assert_is_instance(dtype, np.dtype, descriptor="Numerics Type", checking_obj=self)
         self._dtype = dtype
+
+    @property
+    def dim(self):
+        return self._dim
+
+    @dim.setter
+    @abstractmethod
+    def dim(self, dim):
+        pass
 
     @abstractmethod
     def set(self, *args, **kwargs):
@@ -104,6 +119,7 @@ class AbstractSpatialObject(Deepcopyable, metaclass=ABCMeta):
     def lines_for_log(self):
         _lines = OrderedDict()
         _lines['Numeric Type'] = "%s" % self.dtype
+        _lines['Dimension'] = "%s" % self.dim
         return _lines
 
     def __str__(self):

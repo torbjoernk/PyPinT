@@ -57,6 +57,10 @@ class Scalar1DTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self._default.set([1.0])
 
+    def test_cannot_change_dimension(self):
+        with self.assertRaises(RuntimeError):
+            self._default.dim = 2
+
     def test_has_norm(self):
         self.assertEqual(self._default.norm, 0.0)
 
@@ -142,7 +146,6 @@ class Scalar1DTest(unittest.TestCase):
         self.assertEqual(_copy.value, self._default.value)
         self.assertEqual(_copy.dtype, self._default.dtype)
         self.assertNotEqual(id(_copy), id(self._default))
-        self.assertNotEqual(hash(copy), hash(self._default))
         self.assertEqual(id(_copy.dtype), id(self._default.dtype))
         self.assertEqual(id(_copy.value), id(self._default.value))
 
@@ -153,9 +156,22 @@ class Scalar1DTest(unittest.TestCase):
         self.assertEqual(_copy.value, self._default.value)
         self.assertEqual(_copy.dtype, self._default.dtype)
         self.assertNotEqual(id(_copy), id(self._default))
-        self.assertNotEqual(hash(copy), hash(self._default))
         self.assertNotEqual(id(_copy.dtype), id(self._default.dtype))
         self.assertNotEqual(id(_copy.value), id(self._default.value))
+
+    def test_is_comparable(self):
+        _one = Scalar1D(1.0)
+        self.assertTrue(Scalar1D(1.0) == _one)
+        self.assertFalse(Scalar1D(42) == _one)
+
+        self.assertTrue(Scalar1D(0.0) <= _one)
+        self.assertTrue(Scalar1D(0.0) < _one)
+        self.assertTrue(Scalar1D(2.0) > _one)
+        self.assertTrue(Scalar1D(2.0) >= _one)
+        self.assertTrue(Scalar1D(2.0) != _one)
+
+        self.assertEqual(_one.__eq__(42), NotImplemented)
+        self.assertEqual(_one.__gt__(42), NotImplemented)
 
     def test_has_stringification(self):
         self.assertRegex(str(self._default), '^Scalar1D<0x[0-9a-f]*>\(dtype=.*, value=.*\)$')
