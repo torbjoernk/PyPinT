@@ -12,7 +12,6 @@ from pypint.utilities.states.node_state import NodeState
 from pypint.utilities.assertions import assert_condition, assert_is_instance, assert_named_argument
 from pypint.utilities.tracing import class_name
 from pypint.utilities.abc import Deepcopyable
-from pypint.utilities.logging import LOG
 
 
 class StateSequence(Sequence, Deepcopyable):
