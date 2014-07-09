@@ -3,6 +3,7 @@
 
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
+from collections.abc import Sequence
 import warnings
 import copy
 
@@ -14,7 +15,7 @@ from pypint.solutions.data_storage.trajectory_solution_data import TrajectorySol
 from pypint.utilities import assert_is_instance, assert_condition
 
 
-class IterativeSolution(ISolution):
+class IterativeSolution(ISolution, Sequence):
     """Storage for the solutions of an iterative solver.
 
     A new solution of a specific iteration can be added via :py:meth:`.add_solution` and queried via
@@ -268,6 +269,12 @@ class IterativeSolution(ISolution):
                 assert_condition(np.array_equal(_time_points, self._data[iteration].time_points), ValueError,
                                  message="Time points of one or more stored solution data objects do not match.",
                                  checking_obj=self)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __getitem__(self, item):
+        return self._data[item]
 
 
 __all__ = ['IterativeSolution']
