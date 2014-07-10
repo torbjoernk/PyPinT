@@ -3,7 +3,6 @@ import unittest
 
 from pypint.utilities.states.solver_state import SolverState
 from pypint.utilities.states.iteration_state import IterationState
-from pypint.solutions.data_storage.trajectory_solution_data import TrajectorySolutionData
 from pypint.solutions.final_solution import FinalSolution
 from pypint.solutions.iterative_solution import IterativeSolution
 from pypint.solutions.data_storage.trajectory_solution_data import TrajectorySolutionData
