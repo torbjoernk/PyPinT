@@ -2,23 +2,24 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from warnings import warn
-from copy import deepcopy
-
 import numpy as np
 
-from pypint.utilities.states.i_solver_state import IStepState, ISolverState, IStaticStateIterator
+from pypint.utilities.states.solver_state import SolverState
+from pypint.utilities.states.level_state import LevelState
+from pypint.utilities.states.timestep_state import TimeStepState
+from pypint.utilities.states.node_state import NodeState
+from pypint.solutions.final_solution import FinalSolution
 from pypint.solutions.iterative_solution import IterativeSolution
 from pypint.solutions.data_storage.trajectory_solution_data import TrajectorySolutionData
-from pypint.utilities import assert_condition, class_name
+from pypint.utilities.assertions import assert_condition, assert_named_argument
 
 
-class MlSdcStepState(IStepState):
+class MlSdcNodeState(NodeState):
     def __init__(self, **kwargs):
-        super(MlSdcStepState, self).__init__(**kwargs)
+        super(MlSdcNodeState, self).__init__(**kwargs)
         self._fas_correction = None
         self._coarse_correction = 0.0
-        self._intermediate = IStepState()
+        self._intermediate = NodeState()
 
     def has_fas_correction(self):
         return self._fas_correction is not None
@@ -47,13 +48,13 @@ class MlSdcStepState(IStepState):
         self._fas_correction = fas_correction
 
 
-class MlSdcLevelState(IStaticStateIterator):
+class MlSdcLevelState(LevelState):
     def __init__(self, **kwargs):
         kwargs['solution_class'] = TrajectorySolutionData
-        kwargs['element_type'] = MlSdcStepState
+        kwargs['element_type'] = MlSdcNodeState
         super(MlSdcLevelState, self).__init__(**kwargs)
 
-        self._initial = MlSdcStepState()
+        self._initial = MlSdcNodeState()
         self._integral = 0.0
 
     @property
@@ -137,233 +138,21 @@ class MlSdcLevelState(IStaticStateIterator):
         for _step in range(0, len(self)):
             self[_step].coarse_correction = coarse_correction[_step + 1]
 
-    @property
-    def current_time_point(self):
-        """Accessor for the current step's time point
 
-        Returns
-        -------
-        current_time_point : :py:class:`float` or :py:class:`None`
-            :py:class:`None` is returned if :py:attr:`.current_step` is :py:class:`None`
-        """
-        return self.current_step.time_point if self.current_step is not None else None
-
-    @property
-    def previous_time_point(self):
-        """Accessor for the previous step's time point
-
-        Returns
-        -------
-        previous_time_point : :py:class:`float` or :py:class:`None`
-            :py:class:`None` is returned if :py:attr:`.previous_step` is :py:class:`None`
-        """
-        return self.previous_step.time_point if self.previous is not None else None
-
-    @property
-    def next_time_point(self):
-        """Accessor for the next step's time point
-
-        Returns
-        -------
-        next_time_point : :py:class:`float` or :py:class:`None`
-            :py:class:`None` is returned if :py:attr:`.next_step` is :py:class:`None`
-        """
-        return self.next.time_point if self.next_step is not None else None
-
-    @property
-    def current_step(self):
-        """Proxy for :py:attr:`.current`
-        """
-        return self.current
-
-    @property
-    def current_step_index(self):
-        """Proxy for :py:attr:`.current_index`
-        """
-        return self.current_index
-
-    @property
-    def previous_step(self):
-        """Accessor for the previous step
-
-        Returns
-        -------
-        previous step : :py:class:`.IStepState` or :py:class:`None`
-            :py:class:`None` is returned if :py:attr:`.previous_index` is :py:class:`None`
-        """
-        return self.previous if self.previous_index is not None else self.initial
-
-    @property
-    def previous_step_index(self):
-        """Proxy for :py:attr:`.previous_index`
-        """
-        return self.previous_index
-
-    @property
-    def next_step(self):
-        """Proxy for :py:attr:`.next`
-        """
-        return self.next
-
-    @property
-    def next_step_index(self):
-        """Proxy for :py:attr:`.next_index`
-        """
-        return self.next_index
-
-    @property
-    def final_step(self):
-        """Proxy for :py:attr:`.last`
-        """
-        return self.last
-
-    @property
-    def final_step_index(self):
-        """Proxy for :py:attr:`.last_index`
-        """
-        return self.last_index
-
-
-class MlSdcIterationState(IStaticStateIterator):
+class MlSdcSolverState(SolverState):
     def __init__(self, **kwargs):
-        kwargs['solution_class'] = TrajectorySolutionData
-        kwargs['element_type'] = MlSdcLevelState
-        if 'num_states' in kwargs:
-            warn("Levels must be initialized separately.")
-            del kwargs['num_states']
-        super(MlSdcIterationState, self).__init__(**kwargs)
-        self._initial = None
-
-    def add_finer_level(self, num_nodes):
-        self._states.append(self._element_type(num_states=num_nodes))
-        self._current_index = len(self) - 1
-
-    def add_coarser_level(self, num_nodes):
-        self._states.insert(0, self._element_type(num_states=num_nodes))
-        self._current_index = len(self) - 1
-
-    def proceed(self):
-        raise RuntimeError("'proceed' is not defined in the context of different levels.")
-
-    def finalize(self):
-        assert_condition(not self.finalized, RuntimeError,
-                         message="This {} is already done.".format(class_name(self)),
-                         checking_obj=self)
-        self._solution = self.finest_level.solution
-        self._current_index = 0
-        self._finalized = True
-
-    def step_up(self):
-        """Get to next finer level
-        """
-        if self.next_index:
-            # LOG.debug("Stepping up to level %d" % (self._current_index + 1))
-            self._current_index += 1
-        else:
-            raise StopIteration("There is no finer level available.")
-
-    def step_down(self):
-        if not self.on_base_level:
-            # LOG.debug("Stepping down to level %d" % (self._current_index - 1))
-            self._current_index -= 1
-            for _step in self.current_level:
-                _step.intermediate.value = _step.value.copy()
-                if _step.rhs_evaluated:
-                    _step.intermediate.rhs = _step.rhs.copy()
-        else:
-            raise StopIteration("There is no finer level available.")
-
-    @property
-    def time_points(self):
-        """Read-only accessor for the list of time points of this time step
-        """
-        return np.array([step.time_point for step in self], dtype=float)
-
-    @property
-    def initial(self):
-        """Accessor to the initial value of this iteration
-        """
-        return self._initial
-
-    @initial.setter
-    def initial(self, initial):
-        self._initial = initial
-
-    @property
-    def current_level(self):
-        return self.current
-
-    @property
-    def current_level_index(self):
-        return self.current_index
-
-    @property
-    def finer_level(self):
-        return self.next
-
-    @property
-    def finer_level_index(self):
-        return self.next_index
-
-    @property
-    def coarser_level(self):
-        return self.previous
-
-    @property
-    def coarser_level_index(self):
-        return self.previous_index
-
-    @property
-    def finest_level(self):
-        return self.last
-
-    @property
-    def finest_level_index(self):
-        return self.last_index
-
-    @property
-    def coarsest_level(self):
-        return self.first
-
-    @property
-    def coarsest_level_index(self):
-        return self.first_index
-
-    @property
-    def base_level(self):
-        return self.coarsest_level()
-
-    @property
-    def on_base_level(self):
-        return self.current_level_index == 0
-
-    @property
-    def on_finest_level(self):
-        return self.current_level_index == len(self) - 1
-
-    @property
-    def final_step(self):
-        return self.finest_level.final_step \
-            if self.finest_level else None
-
-class MlSdcSolverState(ISolverState):
-    def __init__(self, **kwargs):
-        kwargs['solution_class'] = IterativeSolution
-        kwargs['element_type'] = MlSdcIterationState
+        kwargs['element_type'] = [MlSdcLevelState, TimeStepState, MlSdcNodeState]
+        kwargs['solution_type'] = [FinalSolution, IterativeSolution, TrajectorySolutionData]
         super(MlSdcSolverState, self).__init__(**kwargs)
-        del self._num_time_steps
-        self._num_level = kwargs['num_level'] if 'num_level' in kwargs else 0
-        self._initial = MlSdcStepState()
 
-    def proceed(self):
-        """Proceeds to the next iteration
-
-        Extends the sequence of :py:class:`.IIterationState` by appending a new instance with the set
-        :py:attr:`.num_time_steps` and :py:attr:`.num_nodes`.
-        """
-        self._add_iteration()
-        self._current_index = len(self) - 1
-        self.current_iteration.initial = deepcopy(self.initial)
+        assert_named_argument('num_nodes', kwargs, types=int, descriptor='Number of Nodes per Time Step')
+        assert_named_argument('num_level', kwargs, types=int, descriptor='Number of Levels')
+        kwargs['num_states'] = [kwargs.get['num_level'], kwargs.get('num_time_steps', 1), kwargs['num_nodes']]
+        if 'num_time_steps' in kwargs:
+            del kwargs['num_time_steps']
+        del kwargs['num_nodes']
+        del kwargs['num_level']
+        super(SolverState, self).__init__(**kwargs)
 
     @property
     def num_level(self):
@@ -373,71 +162,7 @@ class MlSdcSolverState(ISolverState):
         -------
         num_level : :py:class:`int`
         """
-        return self._num_level
-
-    @property
-    def current_level(self):
-        return self.current_iteration.current_level \
-            if self.current_iteration else None
-
-    @property
-    def current_level_index(self):
-        return self.current_iteration.current_level_index \
-            if self.current_iteration else None
-
-    @property
-    def current_step(self):
-        return self.current_iteration.current_level.current_step \
-            if self.current_iteration and self.current_iteration.current_level else None
-
-    @property
-    def current_step_index(self):
-        return self.current_iteration.current_level.current_step_index \
-            if self.current_iteration and self.current_iteration.current_level else None
-
-    @property
-    def next_step(self):
-        return self.current_iteration.current_level.next_step \
-            if self.current_iteration and self.current_iteration.current_level else None
-
-    @property
-    def previous_step(self):
-        return self.current_iteration.current_level.previous_step \
-            if self.current_iteration and self.current_iteration.current_level else None
-
-    @property
-    def previous_step_index(self):
-        return self.current_iteration.current_level.previous_step_index \
-            if self.current_iteration and self.current_iteration.current_level else None
-
-    @property
-    def num_time_steps(self):
-        return 1 if self.current_iteration else None
-
-    @property
-    def current_time_step(self):
-        return self.current_iteration.current_level \
-            if self.current_iteration else None
-
-    @property
-    def current_time_step_index(self):
-        return self.current_iteration.current_level_index if self.current_iteration else None
-
-    @property
-    def next_time_step(self):
-        return 0 if self.current_iteration else None
-
-    @property
-    def previous_time_step(self):
-        return 0 if self.current_iteration else None
-
-    def _add_iteration(self):
-        assert_condition(self.num_level > 0,
-                         ValueError,
-                         message="Number of number of levels and nodes per level must be larger 0: NOT {}"
-                                 .format(self.num_level),
-                         checking_obj=self)
-        self._states.append(self._element_type(num_level=self.num_level))
+        return len(self)
 
 
-__all__ = ['MlSdcStepState', 'MlSdcLevelState', 'MlSdcTimeStepState', 'MlSdcIterationState', 'MlSdcSolverState']
+__all__ = ['MlSdcStepState', 'MlSdcLevelState', 'MlSdcSolverState']
