@@ -53,7 +53,7 @@ class AbstractIntegrator(metaclass=ABCMeta):
     def name(self):
         """Human readable name of the solver's core
         """
-        return 'Solver Core Interface'
+        return 'Integrator Interface'
 
 
 __all__ = ['AbstractIntegrator']
