@@ -20,7 +20,7 @@ class IntegratorImplementation(AbstractIntegrator):
 
     @property
     def name(self):
-        return super(self.__class__, self.__class__).name.fget(self)
+        return super(IntegratorImplementation, self.__class__).name.fget(self)
 
 
 class AbstractIntegratorTest(unittest.TestCase):
@@ -29,6 +29,12 @@ class AbstractIntegratorTest(unittest.TestCase):
 
     def test_has_a_name(self):
         self.assertRegex(self.default.name, '^Integrator Interface$')
+
+    def test_computes_residual(self):
+        pass
+
+    def test_computes_error(self):
+        pass
 
 
 if __name__ == '__main__':

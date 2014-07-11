@@ -72,7 +72,7 @@ class AbstractSdc(AbstractIntegrator, metaclass=ABCMeta):
     @AbstractIntegrator.name.getter
     @abstractmethod
     def name(self):
-        super(self.__class__, self.__class__).name.fget(self)
+        super(AbstractSdc, self.__class__).name.fget(self)
         return 'SDC Integrator Interface'
 
     def _previous_iteration_previous_step(self, state):

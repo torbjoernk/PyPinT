@@ -2,11 +2,12 @@
 """
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
+from pypint.integrators.sdc.abstract_sdc import AbstractSdc
 from pypint.integrators.sdc.explicit_sdc import ExplicitSdc
 from pypint.integrators.sdc.implicit_sdc import ImplicitSdc
 from pypint.integrators.sdc.semi_implicit_sdc import SemiImplicitSdc
 
-
 __all__ = [
+    'AbstractSdc',
     'ExplicitSdc', 'ImplicitSdc', 'SemiImplicitSdc',
 ]

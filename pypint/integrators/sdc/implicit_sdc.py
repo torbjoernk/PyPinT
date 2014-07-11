@@ -72,7 +72,7 @@ class ImplicitSdc(AbstractSdc):
 
     @AbstractSdc.name.getter
     def name(self):
-        super(self.__class__, self.__class__).name.fget(self)
+        super(ImplicitSdc, self.__class__).name.fget(self)
         return 'Implicit SDC Integrator'
 
 

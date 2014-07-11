@@ -55,7 +55,7 @@ class ExplicitSdc(AbstractSdc):
 
     @AbstractSdc.name.getter
     def name(self):
-        super(self.__class__, self.__class__).name.fget(self)
+        super(ExplicitSdc, self.__class__).name.fget(self)
         return 'Explicit SDC Integrator'
 
 
