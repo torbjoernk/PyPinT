@@ -3,8 +3,13 @@
 
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
+<<<<<<< HEAD
 from pypint.utilities.states.solver_state import SolverState
 from pypint.integrators.i_integrator import IIntegrator
+=======
+from pypint.solvers.states.i_solver_state import ISolverState
+from pypint.integrators.abstract_integrator import AbstractIntegrator
+>>>>>>> feature/rewamp-integrators
 from pypint.utilities.threshold_check import ThresholdCheck
 from pypint.utilities import assert_condition, assert_is_callable, class_name
 
@@ -16,7 +21,7 @@ class IIterativeTimeSolver(object):
     def __init__(self, *args, **kwargs):
         self._problem = None
         self._integrator = None
-        self._core = IIntegrator()
+        self._core = AbstractIntegrator()
         self._timer = None
         self._threshold_check = ThresholdCheck()
         self._state = SolverState()
@@ -58,7 +63,7 @@ class IIterativeTimeSolver(object):
         solution : :py:class:`.ISolution`
             The solution of the problem.
         """
-        assert_condition(issubclass(core, IIntegrator),
+        assert_condition(issubclass(core, AbstractIntegrator),
                          ValueError, message="The given solver core class must be valid: NOT {:s}"
                                              .format(class_name(core)),
                          checking_obj=self)

@@ -6,7 +6,7 @@ import warnings
 from numpy import ndarray
 
 from pypint.multi_level_providers.levels.abstract_level import AbstractLevel
-from pypint.integrators.i_integrator import IIntegrator
+from pypint.integrators.abstract_integrator import AbstractIntegrator
 from pypint.utilities import assert_is_instance, func_name
 from pypint.utilities.logging import LOG
 
@@ -19,7 +19,7 @@ class TimeLevel(AbstractLevel):
 
     Parameters
     ----------
-    integrator : :py:class:`.IIntegrator`
+    integrator : :py:class:`.AbstractIntegrator`
         *(optional)*
         time integrator to be used; see :py:attr:`.integrator`
     """
@@ -59,7 +59,7 @@ class TimeLevel(AbstractLevel):
 
     @integrator.setter
     def integrator(self, value):
-        assert_is_instance(value, IIntegrator, descriptor="Integrator", checking_obj=self)
+        assert_is_instance(value, AbstractIntegrator, descriptor="Integrator", checking_obj=self)
         self._integrator = value
 
     @property

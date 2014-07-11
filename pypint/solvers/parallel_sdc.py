@@ -185,7 +185,7 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
 
         Parameters
         ----------
-        core : :py:class:`.SdcIntegrator`
+        core : :py:class:`.AbstractSdc`
             core solver stepping method
         dt : :py:class:`float`
             width of the interval to work on; this is devided into the number of given

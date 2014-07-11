@@ -4,11 +4,11 @@
 """
 import numpy as np
 
-from pypint.integrators.sdc.mlsdc_integrator import MlSdcIntegrator
+from pypint.integrators.mlsdc.mlsdc_integrator import MlSdcIntegrator
 from pypint.utilities.states.mlsdc_solver_state import MlSdcSolverState
-from pypint.problems import IProblem
+from pypint.problems.i_problem import IProblem
 from pypint.problems.has_direct_implicit_mixin import problem_has_direct_implicit
-from pypint.utilities import assert_is_instance, assert_named_argument
+from pypint.utilities.assertions import assert_is_instance, assert_named_argument
 from pypint.utilities.logging import LOG
 
 
