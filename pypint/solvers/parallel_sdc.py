@@ -340,7 +340,7 @@ class ParallelSdc(IIterativeTimeSolver, IParallelSolver):
 
         Returns
         -------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
         """
         if len(self._states) > 0:
             return self._states[-1]

@@ -4,7 +4,7 @@
 .. moduleauthor:: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
 from pypint.utilities import assert_is_instance
-from pypint.utilities.states.i_solver_state import ISolverState
+from pypint.utilities.states.solver_state import SolverState
 
 
 class IIntegrator(object):
@@ -23,30 +23,30 @@ class IIntegrator(object):
 
         Parameters
         ----------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
             Current state of the solver.
         """
-        assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
+        assert_is_instance(state, SolverState, descriptor="Solver's State", checking_obj=self)
 
     def compute_residual(self, state, **kwargs):
         """Computes the residual of the current state
 
         Parameters
         ----------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
             Current state of the solver.
         """
-        assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
+        assert_is_instance(state, SolverState, descriptor="Solver's State", checking_obj=self)
 
     def compute_error(self, state, **kwargs):
         """Computes the error of the current state
 
         Parameters
         ----------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
             Current state of the solver.
         """
-        assert_is_instance(state, ISolverState, descriptor="Solver's State", checking_obj=self)
+        assert_is_instance(state, SolverState, descriptor="Solver's State", checking_obj=self)
 
 
 __all__ = ['IIntegrator']

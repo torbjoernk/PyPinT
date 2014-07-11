@@ -3,7 +3,7 @@
 
 .. moduleauthor: Torbjörn Klatt <t.klatt@fz-juelich.de>
 """
-from pypint.utilities.states.i_solver_state import ISolverState
+from pypint.utilities.states.solver_state import SolverState
 from pypint.integrators.i_integrator import IIntegrator
 from pypint.utilities.threshold_check import ThresholdCheck
 from pypint.utilities import assert_condition, assert_is_callable, class_name
@@ -19,7 +19,7 @@ class IIterativeTimeSolver(object):
         self._core = IIntegrator()
         self._timer = None
         self._threshold_check = ThresholdCheck()
-        self._state = ISolverState()
+        self._state = SolverState()
 
     def init(self, problem, **kwargs):
         """Initializes the solver with a given problem and options.
@@ -81,7 +81,7 @@ class IIterativeTimeSolver(object):
 
         Returns
         -------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
         """
         return self._state
 

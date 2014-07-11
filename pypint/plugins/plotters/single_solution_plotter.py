@@ -10,7 +10,7 @@ from matplotlib import is_interactive
 from pypint.plugins.plotters.i_plotter import IPlotter
 from pypint.plugins.plotters import colorline
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.utilities.states import ISolverState
+from pypint.utilities.states.solver_state import SolverState
 from pypint.solvers.diagnosis.norms import supremum_norm
 from pypint.utilities import assert_named_argument
 from pypint.utilities.logging import LOG
@@ -39,7 +39,7 @@ class SingleSolutionPlotter(IPlotter):
         solver : :py:class:`.IIterativeTimeSolver`
             solver instance used to calculate the solution
 
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
             state containing information to plot
 
         errplot : :py:class:`bool`
@@ -55,12 +55,12 @@ class SingleSolutionPlotter(IPlotter):
         ValueError
 
             * if ``solver`` not given and not an :py:class:`.IIterativeTimeSolver`
-            * if ``state`` not given and not an :py:class:`.ISolverState`
+            * if ``state`` not given and not an :py:class:`.SolverState`
         """
         super(SingleSolutionPlotter, self).plot(args, **kwargs)
 
         assert_named_argument('solver', kwargs, types=IIterativeTimeSolver, descriptor="Solver", checking_obj=self)
-        assert_named_argument('state', kwargs, types=ISolverState, descriptor="State must be given", checking_obj=self)
+        assert_named_argument('state', kwargs, types=SolverState, descriptor="State must be given", checking_obj=self)
 
         self._solver = kwargs['solver']
         self._state = kwargs['state']

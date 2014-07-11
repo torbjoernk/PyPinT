@@ -261,7 +261,7 @@ class MlSdc(IIterativeTimeSolver, IParallelSolver):
 
         Returns
         -------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
         """
         if len(self._states) > 0:
             return self._states[-1]
@@ -656,7 +656,7 @@ class MlSdc(IIterativeTimeSolver, IParallelSolver):
             logged*
         """
         LOG.debug("Sweeping on level %d ..." % self.state.current_level_index)
-        self.state.current_iteration.current_level.reset_to_start()
+        self.state.current_iteration.current_level.reset_current_index()
         _integrator = self.ml_provider.integrator(self.state.current_iteration.current_level_index)
         _num_nodes = _integrator.num_nodes
 

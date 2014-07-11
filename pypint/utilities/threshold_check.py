@@ -68,7 +68,7 @@ class ThresholdCheck(object):
 
         Parameters
         ----------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
         """
         self._reason = []
         self._check_reduction(state)
@@ -199,7 +199,7 @@ class ThresholdCheck(object):
         """Computes the reduction of the error and solution
 
         With respect to the supremum nomr of the given state's current iteration (see
-        :py:attr:`.ISolverState.current_iteration` and :py:class:`.IIterationState`).
+        :py:attr:`.SolverState.current_iteration` and :py:class:`.IterationState`).
         In case no previous iteration is available, it immediatly returns.
         """
         if not state.previous_iteration:

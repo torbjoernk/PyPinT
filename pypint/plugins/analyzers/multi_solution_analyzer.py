@@ -8,7 +8,7 @@ import numpy as np
 from pypint.plugins.analyzers.i_analyzer import IAnalyzer
 from pypint.plugins.plotters.reduction_residual_plotter import ReductionResidualPlotter
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.utilities.states import ISolverState
+from pypint.utilities.states.solver_state import SolverState
 from pypint.utilities import assert_named_argument
 
 
@@ -51,7 +51,7 @@ class MultiSolutionAnalyzer(IAnalyzer):
         solver : :py:class:`.IIterativeTimeSolver`
             solver
 
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
             state of the solver
 
         Raises
@@ -59,14 +59,14 @@ class MultiSolutionAnalyzer(IAnalyzer):
         ValueError
 
             * if ``solver`` is not given or is not a :py:class:`.IIterativeTimeSolver`
-            * if ``state`` is not given or is not a :py:class:`.ISolverState`
+            * if ``state`` is not given or is not a :py:class:`.SolverState`
         """
         super(MultiSolutionAnalyzer, self).add_data(args, kwargs)
 
         assert_named_argument('solver', kwargs, types=IIterativeTimeSolver,
                               descriptor="Solver", checking_obj=self)
 
-        assert_named_argument('state', kwargs, types=ISolverState, descriptor="State", checking_obj=self)
+        assert_named_argument('state', kwargs, types=SolverState, descriptor="State", checking_obj=self)
 
         self._solvers.append(kwargs['solver'])
         self._data.append(kwargs['state'])

@@ -9,7 +9,7 @@ from matplotlib import is_interactive
 
 from pypint.plugins.plotters.i_plotter import IPlotter
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.utilities.states import ISolverState
+from pypint.utilities.states.solver_state import SolverState
 from pypint.solvers.diagnosis.norms import supremum_norm
 from pypint.utilities import assert_is_instance, assert_condition, assert_named_argument
 from pypint.utilities.logging import LOG
@@ -46,7 +46,7 @@ class ReductionResidualPlotter(IPlotter):
         solvers : :py:class:`.IIterativeTimeSolver`
             solver instances used to calculate the solutions
 
-        states : :py:class:`.ISolverState`
+        states : :py:class:`.SolverState`
             states of the solvers
 
         Raises
@@ -54,7 +54,7 @@ class ReductionResidualPlotter(IPlotter):
         ValueError
 
             * if ``solvers`` is not given or is not a :py:class:`numpy.ndarray` of :py:class:`.IIterativeTimeSolver`
-            * if ``states`` is not given or is not a :py:class:`numpy.ndarray` of :py:class:`.ISolverState`
+            * if ``states`` is not given or is not a :py:class:`numpy.ndarray` of :py:class:`.SolverState`
             * if ``states`` has more than 7 states
             * if the size of ``states`` does not equal the size of ``solvers``
         """
@@ -69,7 +69,7 @@ class ReductionResidualPlotter(IPlotter):
         assert_condition(kwargs['states'].size <= 7,
                          ValueError, "Can only handle up to 7 solutions: %d" % kwargs['states'].size,
                          self)
-        [assert_is_instance(_state, ISolverState,
+        [assert_is_instance(_state, SolverState,
                             descriptor="All States", checking_obj=self) for _state in kwargs['states']]
         self._states = kwargs['states']
 

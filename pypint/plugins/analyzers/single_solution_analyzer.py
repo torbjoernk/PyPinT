@@ -6,7 +6,7 @@
 from pypint.plugins.analyzers.i_analyzer import IAnalyzer
 from pypint.plugins.plotters.single_solution_plotter import SingleSolutionPlotter
 from pypint.solvers.i_iterative_time_solver import IIterativeTimeSolver
-from pypint.utilities.states import ISolverState
+from pypint.utilities.states.solver_state import SolverState
 from pypint.utilities import assert_named_argument
 
 
@@ -54,14 +54,14 @@ class SingleSolutionAnalyzer(IAnalyzer):
         """
         Parameters
         ----------
-        state : :py:class:`.ISolverState`
+        state : :py:class:`.SolverState`
             state of the solver
 
         Raises
         ------
         ValueError
-            if ``state`` is not given or is not a :py:class:`.ISolverState`
+            if ``state`` is not given or is not a :py:class:`.SolverState`
         """
         super(SingleSolutionAnalyzer, self).add_data(args, kwargs)
-        assert_named_argument('state', kwargs, types=ISolverState, descriptor="State", checking_obj=self)
+        assert_named_argument('state', kwargs, types=SolverState, descriptor="State", checking_obj=self)
         self._data = kwargs['state']
