@@ -1,10 +1,9 @@
 # coding=utf-8
-
 import unittest
 
 
 class UtilitiesTests(unittest.TestSuite):
-    def __init__(self):
+    def setUp(self):
         pass
 
 

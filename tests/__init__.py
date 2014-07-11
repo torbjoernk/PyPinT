@@ -24,7 +24,7 @@ def assert_numpy_array_almost_equal(first, second, places=None, delta=None):
 
     for index in range(0, first_flat.size):
         assert_almost_equal(first_flat[index], second_flat[index], places=places, delta=delta,
-                            msg="Element {:d} not equal: {:f} != {:f}"
+                            msg="Element {:d} not equal: {} != {}"
                                 .format(index, first_flat[index], second_flat[index]))
 
 
@@ -42,7 +42,7 @@ def assert_numpy_array_equal(first, second):
 
     for index in range(0, first_flat.size):
         assert_equal(first_flat[index], second_flat[index],
-                     msg="Element {:d} not equal: {:f} != {:f}".format(index, first_flat[index], second_flat[index]))
+                     msg="Element {:d} not equal: {} != {}".format(index, first_flat[index], second_flat[index]))
 
 
 class NumpyAwareTestCase(unittest.TestCase):
@@ -60,7 +60,7 @@ class NumpyAwareTestCase(unittest.TestCase):
 
         for index in range(0, first.size):
             self.assertEqual(first_flat[index], second_flat[index],
-                             msg="Element {:d} not equal: {:f} != {:f}"
+                             msg="Element {:d} not equal: {} != {}"
                                  .format(index, first_flat[index], second_flat[index]))
 
     def assertNumpyArrayAlmostEqual(self, first, second, places=None, delta=None):
@@ -78,7 +78,7 @@ class NumpyAwareTestCase(unittest.TestCase):
         for index in range(0, first.size):
             self.assertAlmostEqual(first_flat[index], second_flat[index],
                                    places=places, delta=delta,
-                                   msg="Element {:d} not equal: {:f} != {:f}"
+                                   msg="Element {:d} not equal: {} != {}"
                                        .format(index, first_flat[index], second_flat[index]))
 
 
